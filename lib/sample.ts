@@ -8,15 +8,18 @@ export interface Niche {
   id: string;
   name: string;
   tone: string;
+  formats: Format[];
   channels: ChannelId[];
+  /** Talking-character videos: the post is presented by an AI character. */
+  characters?: boolean;
 }
 
 export const NICHES: Niche[] = [
-  { id: "interior", name: "Интерьер и дизайн", tone: "спокойный, визуальный", channels: ["pixplace", "pinterest", "instagram", "telegram-channel"] },
-  { id: "fitness", name: "Фитнес", tone: "энергичный, на «ты»", channels: ["pixplace", "instagram", "tiktok", "youtube", "telegram-group"] },
-  { id: "food", name: "Кулинария", tone: "тёплый, пошаговый", channels: ["pixplace", "pinterest", "tiktok", "youtube", "telegram-channel"] },
-  { id: "it", name: "IT и обучение", tone: "экспертный, без воды", channels: ["pixplace", "linkedin", "youtube", "telegram-channel", "telegram-group"] },
-  { id: "travel", name: "Путешествия", tone: "живой, с деталями мест", channels: ["pixplace", "pinterest", "instagram", "tiktok"] },
+  { id: "ai-characters", name: "AI-персонажи", tone: "персонаж рассказывает и показывает", formats: ["video"], channels: ["pixplace", "tiktok", "youtube", "instagram", "telegram-channel"], characters: true },
+  { id: "interior", name: "Интерьер и дизайн", tone: "спокойный, визуальный", formats: ["image", "video"], channels: ["pixplace", "pinterest", "instagram", "telegram-channel"] },
+  { id: "fitness", name: "Фитнес", tone: "энергичный, на «ты»", formats: ["image", "video"], channels: ["pixplace", "instagram", "tiktok", "youtube", "telegram-group"] },
+  { id: "food", name: "Кулинария", tone: "тёплый, пошаговый", formats: ["image", "video", "text"], channels: ["pixplace", "pinterest", "tiktok", "telegram-channel"] },
+  { id: "it", name: "IT и обучение", tone: "экспертный, без воды", formats: ["text", "image", "video"], channels: ["pixplace", "linkedin", "youtube", "telegram-channel", "telegram-group"] },
 ];
 
 export interface Character {
@@ -27,9 +30,8 @@ export interface Character {
 }
 
 export const CHARACTERS: Character[] = [
-  { id: "anna", name: "Анна", role: "ведущая, интерьер и путешествия", refs: 14 },
-  { id: "max", name: "Макс", role: "тренер, фитнес", refs: 9 },
-  { id: "none", name: "Без персонажа", role: "только предмет или сцена", refs: 0 },
+  { id: "anna", name: "Анна", role: "ведущая", refs: 14 },
+  { id: "max", name: "Макс", role: "эксперт-практик", refs: 9 },
 ];
 
 export type PostState = "draft" | "review" | "scheduled" | "failed";
@@ -40,7 +42,7 @@ export interface Post {
   format: Format;
   title: string;
   caption: string;
-  character: string;
+  character?: string;
   channels: ChannelId[];
   state: PostState;
   when: string;
@@ -48,8 +50,8 @@ export interface Post {
 }
 
 export const QUEUE: Post[] = [
-  { id: "p1", niche: "interior", format: "image", title: "Скандинавская кухня за выходные", caption: "Три приёма, которые делают маленькую кухню светлее: матовые фасады, открытая полка и тёплый свет под шкафами.", character: "anna", channels: ["pixplace", "pinterest", "instagram", "telegram-channel"], state: "review", when: "сегодня, 18:00", hue: 28 },
-  { id: "p2", niche: "fitness", format: "video", title: "Утренняя зарядка на 7 минут", caption: "Без инвентаря и прыжков — можно делать в квартире, пока соседи спят.", character: "max", channels: ["pixplace", "tiktok", "youtube", "instagram"], state: "scheduled", when: "завтра, 08:30", hue: 152 },
-  { id: "p3", niche: "it", format: "text", title: "Как выбрать первый язык программирования", caption: "Отвечаем на вопрос, который задают чаще всего: начинайте с задачи, а не с языка.", character: "none", channels: ["linkedin", "telegram-channel", "telegram-group"], state: "draft", when: "не запланировано", hue: 222 },
-  { id: "p4", niche: "food", format: "video", title: "Шакшука за 15 минут", caption: "Одна сковорода, шесть ингредиентов и завтрак, который не стыдно подать гостям.", character: "none", channels: ["pixplace", "pinterest", "tiktok"], state: "failed", when: "вчера, 12:00", hue: 8 },
+  { id: "p1", niche: "ai-characters", format: "video", title: "Анна показывает, как собрать мудборд за 5 минут", caption: "Персонаж в кадре объясняет и показывает на экране три шага.", character: "anna", channels: ["pixplace", "tiktok", "youtube", "instagram"], state: "review", when: "сегодня, 18:00", hue: 280 },
+  { id: "p2", niche: "interior", format: "image", title: "Скандинавская кухня за выходные", caption: "Три приёма, которые делают маленькую кухню светлее.", channels: ["pixplace", "pinterest", "instagram", "telegram-channel"], state: "scheduled", when: "завтра, 10:00", hue: 28 },
+  { id: "p3", niche: "it", format: "text", title: "Как выбрать первый язык программирования", caption: "Начинайте с задачи, а не с языка.", channels: ["linkedin", "telegram-channel", "telegram-group"], state: "draft", when: "не запланировано", hue: 222 },
+  { id: "p4", niche: "food", format: "video", title: "Шакшука за 15 минут", caption: "Одна сковорода и шесть ингредиентов.", channels: ["pixplace", "pinterest", "tiktok"], state: "failed", when: "вчера, 12:00", hue: 8 },
 ];

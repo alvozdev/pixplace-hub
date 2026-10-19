@@ -1,6 +1,7 @@
 import "server-only";
 import { channel, type ChannelId, type Format } from "./channels";
-import { channelStatus } from "./status";
+import { hubStatus } from "./status";
+import { credential } from "./store";
 
 export interface PublishInput {
   channels: ChannelId[];
@@ -15,7 +16,11 @@ export interface PublishResult {
   error?: string;
 }
 
-const env = (k: string) => process.env[k]!;
+async function env(k: string): Promise<string> {
+  const v = await credential(k);
+  if (!v) throw new Error(`не задан ${k}`);
+  return v;
+}
 
 async function postJson(url: string, body: unknown, headers: Record<string, string> = {}) {
   const res = await fetch(url, {
@@ -28,7 +33,7 @@ async function postJson(url: string, body: unknown, headers: Record<string, stri
 }
 
 async function toTelegram(chatId: string, input: PublishInput) {
-  const base = `https://api.telegram.org/bot${env("TELEGRAM_BOT_TOKEN")}`;
+  const base = `https://api.telegram.org/bot${await env("TELEGRAM_BOT_TOKEN")}`;
   if (input.format === "text" || !input.mediaUrl) {
     return postJson(`${base}/sendMessage`, { chat_id: chatId, text: input.text });
   }
@@ -41,19 +46,19 @@ async function publishOne(id: ChannelId, input: PublishInput) {
   const c = channel(id);
   switch (c.route) {
     case "telegram":
-      return toTelegram(env(id === "telegram-group" ? "TELEGRAM_GROUP_ID" : "TELEGRAM_CHANNEL_ID"), input);
+      return toTelegram(await env(id === "telegram-group" ? "TELEGRAM_GROUP_ID" : "TELEGRAM_CHANNEL_ID"), input);
     case "make":
       // The Make scenario owns the Pinterest connection; we only hand it the post.
-      return postJson(env("MAKE_WEBHOOK_PINTEREST"), { channel: id, ...input });
+      return postJson(await env("MAKE_WEBHOOK_PINTEREST"), { channel: id, ...input });
     case "pixplace":
-      return postJson(`${env("PIXPLACE_API_URL")}/posts`, input, { authorization: `Bearer ${env("PIXPLACE_API_KEY")}` });
+      return postJson(`${await env("PIXPLACE_API_URL")}/posts`, input, { authorization: `Bearer ${await env("PIXPLACE_API_KEY")}` });
     case "buffer":
       throw new Error("Buffer пока не подключён в коде: нужен токен и id профиля");
   }
 }
 
 export async function publish(input: PublishInput): Promise<PublishResult[]> {
-  const status = channelStatus();
+  const status = (await hubStatus()).channels;
   return Promise.all(
     input.channels.map(async (id) => {
       if (!status[id].ready) return { channel: id, ok: false, error: `нет ключей: ${status[id].missing.join(", ")}` };

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Nav from "./nav";
+import { logout } from "./login/actions";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE } from "@/lib/session";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,7 +10,8 @@ export const metadata: Metadata = {
   description: "Генерация и публикация контента Pix Place по нишам и площадкам",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const signedIn = Boolean((await cookies()).get(SESSION_COOKIE));
   return (
     <html lang="ru">
       <body className="min-h-dvh">
@@ -17,7 +21,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="font-display text-[15px] font-semibold tracking-tight">pix place</span>
               <span className="hidden sm:inline font-mono text-[11px] text-muted">/ пульт</span>
             </a>
-            <Nav />
+            {signedIn && <Nav />}
+            {signedIn && (
+              <form action={logout} className="ml-auto">
+                <button className="text-xs text-muted hover:text-ink">Выйти</button>
+              </form>
+            )}
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>

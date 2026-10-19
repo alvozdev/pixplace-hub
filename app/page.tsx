@@ -1,13 +1,14 @@
 import { CHANNELS, channel } from "@/lib/channels";
-import { channelStatus, generatorStatus } from "@/lib/status";
+import { hubStatus } from "@/lib/status";
 import { NICHES, QUEUE, CHARACTERS } from "@/lib/sample";
 import { Jack, RouteLegend, StateBadge, FormatTag, Thumb, SampleNote, ROUTE_COLOR } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
-export default function Board() {
-  const status = channelStatus();
-  const gen = generatorStatus();
+export default async function Board() {
+  const hub = await hubStatus();
+  const status = hub.channels;
+  const gen = hub.generator;
   const connected = CHANNELS.filter((c) => status[c.id].ready).length;
 
   return (
@@ -81,7 +82,7 @@ export default function Board() {
         <ul className="grid gap-3 sm:grid-cols-2">
           {QUEUE.map((p) => {
             const niche = NICHES.find((n) => n.id === p.niche)!;
-            const who = CHARACTERS.find((c) => c.id === p.character)!;
+            const who = CHARACTERS.find((c) => c.id === p.character);
             return (
               <li key={p.id} className="flex gap-4 rounded-xl border border-line bg-surface p-3">
                 <Thumb hue={p.hue} format={p.format} className="h-28 w-24 shrink-0 rounded-lg" />
@@ -92,7 +93,7 @@ export default function Board() {
                   </div>
                   <h3 className="font-medium leading-snug">{p.title}</h3>
                   <p className="text-xs text-muted">
-                    {niche.name} · {who.name} · {p.when}
+                    {niche.name}{who ? ` · ${who.name}` : ""} · {p.when}
                   </p>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {p.channels.map((id) => {

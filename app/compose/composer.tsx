@@ -16,9 +16,9 @@ const FORMATS: Format[] = ["image", "video", "text"];
 export default function Composer({ status, generator }: Props) {
   const [nicheId, setNicheId] = useState(NICHES[0].id);
   const niche = NICHES.find((n) => n.id === nicheId)!;
-  const [format, setFormat] = useState<Format>("image");
+  const [format, setFormat] = useState<Format>(niche.formats[0]);
   const [character, setCharacter] = useState(CHARACTERS[0].id);
-  const [brief, setBrief] = useState("Скандинавская кухня за выходные: три недорогих приёма");
+  const [brief, setBrief] = useState("Анна показывает, как собрать мудборд для ремонта за 5 минут");
   const [picked, setPicked] = useState<ChannelId[]>(niche.channels);
   const [previewOn, setPreviewOn] = useState<ChannelId>(niche.channels[0]);
   const [message, setMessage] = useState<string | null>(null);
@@ -30,6 +30,7 @@ export default function Composer({ status, generator }: Props) {
   function chooseNiche(id: string) {
     const n = NICHES.find((x) => x.id === id)!;
     setNicheId(id);
+    if (!n.formats.includes(format)) setFormat(n.formats[0]);
     setPicked(n.channels);
     setPreviewOn(n.channels[0]);
   }
@@ -58,7 +59,7 @@ export default function Composer({ status, generator }: Props) {
       <div className="space-y-6">
         <div>
           <h1 className="font-display text-2xl font-semibold tracking-tight">Новый пост</h1>
-          <p className="mt-1 text-sm text-muted">Опишите тему — n8n сгенерирует текст и медиа под каждую площадку.</p>
+          <p className="mt-1 text-sm text-muted">Опишите тему — воркфлоу ниши в n8n сгенерирует текст и медиа под каждую площадку.</p>
         </div>
 
         <Field label="Ниша">
@@ -74,7 +75,7 @@ export default function Composer({ status, generator }: Props) {
 
         <Field label="Формат">
           <div className="inline-flex rounded-lg border border-line bg-surface p-1">
-            {FORMATS.map((f) => (
+            {FORMATS.filter((f) => niche.formats.includes(f)).map((f) => (
               <button
                 key={f}
                 onClick={() => setFormat(f)}
@@ -87,7 +88,8 @@ export default function Composer({ status, generator }: Props) {
           </div>
         </Field>
 
-        <Field label="Персонаж" hint="Лицо сохраняется от поста к посту по референсам">
+        {niche.characters && (
+        <Field label="Персонаж" hint="Лицо и голос сохраняются от видео к видео">
           <div className="grid gap-2 sm:grid-cols-3">
             {CHARACTERS.map((c, i) => (
               <button
@@ -98,7 +100,7 @@ export default function Composer({ status, generator }: Props) {
                   character === c.id ? "border-ink bg-surface" : "border-line bg-surface/50 hover:border-muted"
                 }`}
               >
-                <Thumb hue={[28, 152, 210][i]} format="image" className="h-10 w-10 shrink-0 rounded-full" />
+                <Thumb hue={[280, 152][i]} format="image" className="h-10 w-10 shrink-0 rounded-full" />
                 <span className="min-w-0">
                   <span className="block text-sm font-medium">{c.name}</span>
                   <span className="block truncate text-[11px] text-muted">
@@ -110,6 +112,7 @@ export default function Composer({ status, generator }: Props) {
             ))}
           </div>
         </Field>
+        )}
 
         <Field label="Тема">
           <textarea
