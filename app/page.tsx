@@ -8,7 +8,6 @@ export const dynamic = "force-dynamic";
 export default async function Board() {
   const hub = await hubStatus();
   const status = hub.channels;
-  const gen = hub.generator;
   const connected = CHANNELS.filter((c) => status[c.id].ready).length;
 
   return (
@@ -17,8 +16,7 @@ export default async function Board() {
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Куда что уходит</h1>
           <p className="mt-1 text-sm text-muted">
-            {NICHES.length} ниш · {CHANNELS.length} площадок · подключено {connected} из {CHANNELS.length} · генерация{" "}
-            {gen.ready ? <span className="text-ok">n8n подключён</span> : <span className="text-warn">n8n не подключён</span>}
+            {NICHES.length} ниш · {CHANNELS.length} площадок · подключено {connected} из {CHANNELS.length} · генерация через n8n подключается по MCP
           </p>
         </div>
         <a href="/compose" className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface hover:opacity-90">

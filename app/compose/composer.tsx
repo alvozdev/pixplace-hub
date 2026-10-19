@@ -162,9 +162,7 @@ export default function Composer({ status, generator }: Props) {
             Опубликовать на {targets.length} площ.
           </button>
           <span className="text-xs text-warn">
-            {generator.ready
-              ? "n8n подключён. Кнопку свяжем с твоим воркфлоу генерации после его разбора."
-              : "Генерация выключена: подключите n8n в админке."}
+            Генерацию свяжем с твоим воркфлоу n8n после его разбора через MCP.
           </span>
         </div>
         {notReady.length > 0 && (
