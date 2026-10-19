@@ -15,19 +15,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ru">
       <body className="min-h-dvh">
-        <header className="border-b border-line bg-surface/80 backdrop-blur sticky top-0 z-10">
-          <div className="mx-auto flex max-w-6xl items-center gap-3 sm:gap-6 px-4 h-14">
-            <a href="/" className="flex items-baseline gap-2 shrink-0">
+        <header className="sticky top-0 z-10 border-b border-line bg-surface/90 backdrop-blur">
+          <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
+            <a href="/" className="flex shrink-0 items-baseline gap-2">
               <span className="font-display text-[15px] font-semibold tracking-tight">pix place</span>
-              <span className="hidden sm:inline font-mono text-[11px] text-muted">/ пульт</span>
+              <span className="font-mono text-[11px] text-muted">/ пульт</span>
             </a>
-            {signedIn && <Nav />}
+            {signedIn && <div className="hidden sm:block"><Nav /></div>}
             {signedIn && (
               <form action={logout} className="ml-auto">
-                <button className="text-xs text-muted hover:text-ink">Выйти</button>
+                <button className="rounded-md px-2 py-1.5 text-xs text-muted hover:text-ink">Выйти</button>
               </form>
             )}
           </div>
+          {signedIn && <div className="border-t border-line px-4 py-2 sm:hidden"><Nav /></div>}
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
       </body>

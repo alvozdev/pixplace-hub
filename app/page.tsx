@@ -27,7 +27,26 @@ export default async function Board() {
       </section>
 
       <section className="space-y-3">
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+        <ul className="grid gap-2 md:hidden">
+          {NICHES.map((n) => (
+            <li key={n.id} className="rounded-xl border border-line bg-surface p-3">
+              <div className="font-medium">{n.name}</div>
+              <div className="text-xs text-muted">{n.tone}</div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {n.channels.map((id) => {
+                  const c = channel(id);
+                  return (
+                    <span key={id} className="flex items-center gap-1.5 rounded-md bg-bg px-2 py-1 text-xs">
+                      <Jack route={c.route} live={status[id].ready} size={9} />
+                      {c.name}
+                    </span>
+                  );
+                })}
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto rounded-xl border border-line bg-surface md:block">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr>

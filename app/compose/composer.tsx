@@ -150,14 +150,14 @@ export default function Composer({ status, generator }: Props) {
         <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
           <button
             disabled={!generator.ready}
-            className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full sm:w-auto rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:cursor-not-allowed disabled:opacity-40"
           >
             Сгенерировать
           </button>
           <button
             onClick={publish}
             disabled={targets.length === 0}
-            className="rounded-lg border border-ink px-4 py-2 text-sm font-medium disabled:opacity-40"
+            className="w-full sm:w-auto rounded-lg border border-ink px-4 py-2 text-sm font-medium disabled:opacity-40"
           >
             Опубликовать на {targets.length} площ.
           </button>

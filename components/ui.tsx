@@ -4,7 +4,7 @@ import type { PostState } from "@/lib/sample";
 export const ROUTE_COLOR: Record<Route, string> = {
   pixplace: "var(--color-r-pixplace)",
   telegram: "var(--color-r-telegram)",
-  make: "var(--color-r-make)",
+  n8n: "var(--color-r-n8n)",
   buffer: "var(--color-r-buffer)",
 };
 

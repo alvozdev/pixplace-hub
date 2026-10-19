@@ -20,12 +20,13 @@ export const SERVICES: Service[] = [
   {
     id: "n8n",
     title: "Генерация · n8n",
-    how: "В n8n: Settings → n8n API → Create API key. Вебхук — из воркфлоу генерации.",
+    how: "В n8n: Settings → n8n API → Create API key. Вебхуки — из воркфлоу генерации и публикации; в Make сценарий n8n отправляет сам.",
     testable: true,
     fields: [
       { key: "N8N_API_URL", label: "Адрес n8n", secret: false, placeholder: "https://n8n.example.com" },
       { key: "N8N_API_KEY", label: "API-ключ", secret: true },
       { key: "N8N_WEBHOOK_GENERATE", label: "Вебхук генерации", secret: true, placeholder: "https://n8n.example.com/webhook/…" },
+      { key: "N8N_WEBHOOK_PUBLISH", label: "Вебхук публикации (Pinterest через Make)", secret: true, placeholder: "https://n8n.example.com/webhook/…" },
     ],
   },
   {
@@ -38,13 +39,6 @@ export const SERVICES: Service[] = [
       { key: "TELEGRAM_CHANNEL_ID", label: "ID канала", secret: false, placeholder: "-100…" },
       { key: "TELEGRAM_GROUP_ID", label: "ID группы", secret: false, placeholder: "-100…" },
     ],
-  },
-  {
-    id: "make",
-    title: "Make · Pinterest",
-    how: "В сценарии Make с Pinterest поставьте первым модулем Custom webhook и вставьте его адрес.",
-    testable: false,
-    fields: [{ key: "MAKE_WEBHOOK_PINTEREST", label: "Вебхук сценария", secret: true, placeholder: "https://hook.eu1.make.com/…" }],
   },
   {
     id: "buffer",

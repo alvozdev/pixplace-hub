@@ -47,9 +47,9 @@ async function publishOne(id: ChannelId, input: PublishInput) {
   switch (c.route) {
     case "telegram":
       return toTelegram(await env(id === "telegram-group" ? "TELEGRAM_GROUP_ID" : "TELEGRAM_CHANNEL_ID"), input);
-    case "make":
-      // The Make scenario owns the Pinterest connection; we only hand it the post.
-      return postJson(await env("MAKE_WEBHOOK_PINTEREST"), { channel: id, ...input });
+    case "n8n":
+      // The n8n workflow forwards the post to the Make scenario that owns the Pinterest account.
+      return postJson(await env("N8N_WEBHOOK_PUBLISH"), { channel: id, ...input });
     case "pixplace":
       return postJson(`${await env("PIXPLACE_API_URL")}/posts`, input, { authorization: `Bearer ${await env("PIXPLACE_API_KEY")}` });
     case "buffer":
