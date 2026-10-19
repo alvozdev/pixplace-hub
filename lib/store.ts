@@ -62,9 +62,12 @@ function file(p: string): Backend {
 }
 
 function backend(): Backend {
-  const { UPSTASH_REDIS_REST_URL: url, UPSTASH_REDIS_REST_TOKEN: token } = process.env;
+  // Upstash connected through the Vercel Marketplace exposes KV_REST_API_*; a direct Upstash setup uses UPSTASH_*.
+  const env = process.env;
+  const url = env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL;
+  const token = env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN;
   if (url && token) return upstash(url, token);
-  if (process.env.VERCEL) throw new Error("На Vercel нужна база: UPSTASH_REDIS_REST_URL и UPSTASH_REDIS_REST_TOKEN");
+  if (env.VERCEL) throw new Error("Подключите базу Upstash Redis в Vercel: Storage → Upstash → Connect");
   return file(path.join(process.cwd(), ".data", "credentials.json"));
 }
 
