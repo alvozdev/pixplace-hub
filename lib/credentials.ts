@@ -20,13 +20,11 @@ export const SERVICES: Service[] = [
   {
     id: "n8n",
     title: "Генерация · n8n",
-    how: "В n8n: Settings → n8n API → Create API key. Вебхуки — из воркфлоу генерации и публикации; в Make сценарий n8n отправляет сам.",
+    how: "Адрес — как в браузере, когда открыт n8n, без /workflow/… в конце. Ключ — в n8n: Settings → n8n API → Create an API key.",
     testable: true,
     fields: [
-      { key: "N8N_API_URL", label: "Адрес n8n", secret: false, placeholder: "https://n8n.example.com" },
+      { key: "N8N_API_URL", label: "Адрес n8n", secret: false, placeholder: "https://твой-n8n.app.n8n.cloud" },
       { key: "N8N_API_KEY", label: "API-ключ", secret: true },
-      { key: "N8N_WEBHOOK_GENERATE", label: "Вебхук генерации", secret: true, placeholder: "https://n8n.example.com/webhook/…" },
-      { key: "N8N_WEBHOOK_PUBLISH", label: "Вебхук публикации (Pinterest через Make)", secret: true, placeholder: "https://n8n.example.com/webhook/…" },
     ],
   },
   {

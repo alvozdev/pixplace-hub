@@ -149,7 +149,7 @@ export default function Composer({ status, generator }: Props) {
 
         <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
           <button
-            disabled={!generator.ready}
+            disabled
             className="w-full sm:w-auto rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:cursor-not-allowed disabled:opacity-40"
           >
             Сгенерировать
@@ -161,9 +161,11 @@ export default function Composer({ status, generator }: Props) {
           >
             Опубликовать на {targets.length} площ.
           </button>
-          {!generator.ready && (
-            <span className="text-xs text-warn">Генерация выключена: добавьте {generator.missing.join(", ")}</span>
-          )}
+          <span className="text-xs text-warn">
+            {generator.ready
+              ? "n8n подключён. Кнопку свяжем с твоим воркфлоу генерации после его разбора."
+              : "Генерация выключена: подключите n8n в админке."}
+          </span>
         </div>
         {notReady.length > 0 && (
           <p className="text-xs text-muted">

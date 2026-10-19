@@ -48,7 +48,7 @@ export const FORMAT_LABEL: Record<Format, string> = {
 };
 
 /** Generation engine, separate from publishing routes. */
-export const GENERATOR_ENV = ["N8N_API_URL", "N8N_API_KEY", "N8N_WEBHOOK_GENERATE"];
+export const GENERATOR_ENV = ["N8N_API_URL", "N8N_API_KEY"];
 
 export function channel(id: ChannelId): Channel {
   const c = CHANNELS.find((c) => c.id === id);
