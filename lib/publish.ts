@@ -48,8 +48,7 @@ async function publishOne(id: ChannelId, input: PublishInput) {
     case "telegram":
       return toTelegram(await env(id === "telegram-group" ? "TELEGRAM_GROUP_ID" : "TELEGRAM_CHANNEL_ID"), input);
     case "n8n":
-      // The n8n workflow forwards the post to the Make scenario that owns the Pinterest account.
-      return postJson(await env("N8N_WEBHOOK_PUBLISH"), { channel: id, ...input });
+      throw new Error("Pinterest публикуется из раздела «Черновики» через воркфлоу n8n");
     case "pixplace":
       return postJson(`${await env("PIXPLACE_API_URL")}/posts`, input, { authorization: `Bearer ${await env("PIXPLACE_API_KEY")}` });
     case "buffer":

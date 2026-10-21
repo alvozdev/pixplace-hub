@@ -27,7 +27,7 @@ export const CHANNELS: Channel[] = [
   { id: "pixplace", name: "Портал Pix Place", short: "PX", route: "pixplace", formats: ["image", "video", "text"], env: ["PIXPLACE_API_URL", "PIXPLACE_API_KEY"] },
   { id: "telegram-channel", name: "Telegram · канал", short: "TG·К", route: "telegram", formats: ["image", "video", "text"], env: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHANNEL_ID"] },
   { id: "telegram-group", name: "Telegram · группа", short: "TG·Г", route: "telegram", formats: ["image", "video", "text"], env: ["TELEGRAM_BOT_TOKEN", "TELEGRAM_GROUP_ID"] },
-  { id: "pinterest", name: "Pinterest", short: "PI", route: "n8n", formats: ["image", "video"], env: ["N8N_WEBHOOK_PUBLISH"] },
+  { id: "pinterest", name: "Pinterest", short: "PI", route: "n8n", formats: ["image", "video"], env: ["N8N_WEBHOOK_BASE", "HUB_N8N_TOKEN", "MAKE_WEBHOOK_CLIPART"] },
   { id: "instagram", name: "Instagram", short: "IG", route: "buffer", formats: ["image", "video"], env: ["BUFFER_ACCESS_TOKEN", "BUFFER_PROFILE_INSTAGRAM"] },
   { id: "tiktok", name: "TikTok", short: "TT", route: "buffer", formats: ["video", "image"], env: ["BUFFER_ACCESS_TOKEN", "BUFFER_PROFILE_TIKTOK"] },
   { id: "youtube", name: "YouTube Shorts", short: "YT", route: "buffer", formats: ["video"], env: ["BUFFER_ACCESS_TOKEN", "BUFFER_PROFILE_YOUTUBE"] },
@@ -48,7 +48,7 @@ export const FORMAT_LABEL: Record<Format, string> = {
 };
 
 /** Generation engine, separate from publishing routes. */
-export const GENERATOR_ENV = ["N8N_API_URL", "N8N_API_KEY"];
+export const GENERATOR_ENV = ["N8N_WEBHOOK_BASE", "HUB_N8N_TOKEN"];
 
 export function channel(id: ChannelId): Channel {
   const c = CHANNELS.find((c) => c.id === id);

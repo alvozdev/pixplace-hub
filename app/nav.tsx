@@ -3,15 +3,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
+  { href: "/drafts", label: "Черновики" },
+  { href: "/niches", label: "Ниши" },
   { href: "/", label: "Пульт" },
-  { href: "/compose", label: "Новый пост" },
   { href: "/admin", label: "Админка" },
 ];
 
 export default function Nav() {
   const path = usePathname();
   return (
-    <nav className="grid grid-cols-3 gap-1 text-sm sm:flex">
+    <nav className="grid grid-cols-4 gap-1 text-sm sm:flex">
       {LINKS.map((l) => {
         const active = l.href === "/" ? path === "/" : path.startsWith(l.href);
         return (

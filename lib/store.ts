@@ -4,8 +4,9 @@ import path from "node:path";
 import { decrypt, encrypt } from "./crypto";
 
 /**
- * Encrypted key-value store for credentials entered in the admin panel.
- * Production uses Upstash Redis over REST; local development falls back to a file.
+ * Key-value storage: encrypted credentials from the admin panel, plus plain JSON records
+ * (niche settings, generation jobs). Production uses Upstash Redis over REST; local
+ * development falls back to files in .data/.
  */
 interface Backend {
   readAll(): Promise<Record<string, string>>;
@@ -13,9 +14,9 @@ interface Backend {
   remove(k: string): Promise<void>;
 }
 
-const HASH = "pixplace-hub:credentials";
+const CREDENTIALS = "credentials";
 
-function upstash(url: string, token: string): Backend {
+function upstash(url: string, token: string, hash: string): Backend {
   const call = async (cmd: (string | number)[]) => {
     const res = await fetch(url, {
       method: "POST",
@@ -28,13 +29,13 @@ function upstash(url: string, token: string): Backend {
   };
   return {
     async readAll() {
-      const flat: string[] = (await call(["HGETALL", HASH])) ?? [];
+      const flat: string[] = (await call(["HGETALL", hash])) ?? [];
       const out: Record<string, string> = {};
       for (let i = 0; i < flat.length; i += 2) out[flat[i]] = flat[i + 1];
       return out;
     },
-    write: async (k, v) => void (await call(["HSET", HASH, k, v])),
-    remove: async (k) => void (await call(["HDEL", HASH, k])),
+    write: async (k, v) => void (await call(["HSET", hash, k, v])),
+    remove: async (k) => void (await call(["HDEL", hash, k])),
   };
 }
 
@@ -61,19 +62,19 @@ function file(p: string): Backend {
   };
 }
 
-function backend(): Backend {
+function backend(name: string): Backend {
   // Upstash connected through the Vercel Marketplace exposes KV_REST_API_*; a direct Upstash setup uses UPSTASH_*.
   const env = process.env;
   const url = env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL;
   const token = env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN;
-  if (url && token) return upstash(url, token);
+  if (url && token) return upstash(url, token, `pixplace-hub:${name}`);
   if (env.VERCEL) throw new Error("Подключите базу Upstash Redis в Vercel: Storage → Upstash → Connect");
-  return file(path.join(process.cwd(), ".data", "credentials.json"));
+  return file(path.join(process.cwd(), ".data", `${name}.json`));
 }
 
 /** Decrypted credentials. Values from the admin panel win over env vars. */
 export async function credentials(): Promise<Record<string, string>> {
-  const stored = await backend().readAll();
+  const stored = await backend(CREDENTIALS).readAll();
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(stored)) out[k] = decrypt(v);
   return out;
@@ -84,9 +85,25 @@ export async function credential(k: string): Promise<string | undefined> {
 }
 
 export async function saveCredential(k: string, value: string) {
-  await backend().write(k, encrypt(value));
+  await backend(CREDENTIALS).write(k, encrypt(value));
 }
 
 export async function deleteCredential(k: string) {
-  await backend().remove(k);
+  await backend(CREDENTIALS).remove(k);
+}
+
+/** A named collection of JSON records, e.g. "niches" or "jobs". */
+export function collection<T>(name: string) {
+  const b = () => backend(name);
+  return {
+    async all(): Promise<T[]> {
+      return Object.values(await b().readAll()).map((v) => JSON.parse(v) as T);
+    },
+    async get(id: string): Promise<T | undefined> {
+      const v = (await b().readAll())[id];
+      return v ? (JSON.parse(v) as T) : undefined;
+    },
+    put: (id: string, value: T) => b().write(id, JSON.stringify(value)),
+    remove: (id: string) => b().remove(id),
+  };
 }

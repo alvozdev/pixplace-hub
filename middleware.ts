@@ -13,5 +13,6 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!login|_next/|favicon.ico).*)"],
+  // The n8n callback authenticates with its own token.
+  matcher: ["/((?!login|_next/|favicon.ico|api/n8n/callback).*)"],
 };
