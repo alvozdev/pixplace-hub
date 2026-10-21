@@ -62,6 +62,7 @@ export async function publish(jobId: string): Promise<ActionResult> {
       niche: n,
       draft: j.draft,
       telegramUrl: cur.telegram?.url ?? "",
+      portalUrl: cur.portal?.url ?? "",
       collageUrl: `${origin}/api/collage/${j.id}`,
       makeWebhookUrl: (await credential(n.makeWebhookKey)) ?? "",
     });

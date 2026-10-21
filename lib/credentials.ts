@@ -36,9 +36,14 @@ export const SERVICES: Service[] = [
   {
     id: "make",
     title: "Pinterest через Make",
-    how: "Вебхук сценария Make, который публикует в Pinterest. Его вызывает n8n после публикации в Telegram. Пустое поле — Pinterest пропускается.",
+    how: "Вебхук сценария Make, который публикует в Pinterest, по одному на нишу. Его вызывает n8n после публикации в Telegram. Пустое поле — Pinterest для ниши пропускается.",
     testable: false,
-    fields: [{ key: "MAKE_WEBHOOK_CLIPART", label: "Вебхук Make · Clipart", secret: true, placeholder: "https://hook.us2.make.com/…" }],
+    fields: [
+      { key: "MAKE_WEBHOOK_CLIPART", label: "Вебхук Make · Clipart", secret: true, optional: true, placeholder: "https://hook.us2.make.com/…" },
+      { key: "MAKE_WEBHOOK_INTERIOR", label: "Вебхук Make · Interior", secret: true, optional: true, placeholder: "https://hook.us2.make.com/…" },
+      { key: "MAKE_WEBHOOK_FASHION", label: "Вебхук Make · Fashion", secret: true, optional: true, placeholder: "https://hook.us2.make.com/…" },
+      { key: "MAKE_WEBHOOK_PRODUCTS", label: "Вебхук Make · Product mockups", secret: true, optional: true, placeholder: "https://hook.us2.make.com/…" },
+    ],
   },
   {
     id: "telegram",
