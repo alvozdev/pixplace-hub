@@ -16,6 +16,12 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
   const set = <K extends keyof NicheConfig>(k: K, v: NicheConfig[K]) => setN({ ...n, [k]: v });
   const setPart = <K extends "analyze" | "variants" | "image" | "telegram" | "portal">(k: K, v: Partial<NicheConfig[K]>) => setN({ ...n, [k]: { ...n[k], ...v } });
   const setStyle = (i: number, v: Partial<NicheConfig["styles"][number]>) => setN({ ...n, styles: n.styles.map((s, j) => (j === i ? { ...s, ...v } : s)) });
+  const addStyle = () => {
+    const key = "ABCDEFG".split("").find((k) => !n.styles.some((s) => s.key.toUpperCase() === k)) ?? "X";
+    const last = n.styles[n.styles.length - 1];
+    setN({ ...n, styles: [...n.styles, { ...last, key, label: "", direction: "" }] });
+  };
+  const removeStyle = (i: number) => setN({ ...n, styles: n.styles.filter((_, j) => j !== i) });
   const lora = n.image.lora[0] ?? { model: "", weight: 1 };
   const list = (v: string) => v.split(",").map((t) => t.trim()).filter(Boolean);
   const account = PORTAL_ACCOUNTS.find((a) => a.id === n.portal.account);
@@ -54,7 +60,7 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         <Field label="Задание"><textarea id="analyzeUser" rows={6} className={input} value={n.analyze.user} onChange={(e) => setPart("analyze", { user: e.target.value })} /></Field>
       </Section>
 
-      <Section title="2. Четыре стиля" hint="{prompt} — базовый промпт из шага 1, {styles} — список стилей ниже">
+      <Section title={`2. Стили: ${n.styles.length} из 7`} hint="Сколько стилей, столько картинок в посте. {prompt} — базовый промпт из шага 1, {styles} — список стилей ниже">
         <Grid>
           <Field label="Модель (OpenRouter)"><input id="variantsModel" className={mono} value={n.variants.model} onChange={(e) => setPart("variants", { model: e.target.value })} /></Field>
           <Grid>
@@ -72,8 +78,20 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
               <Field label="Шаги"><input id={`style${i}Steps`} type="number" className={input} value={s.steps} onChange={(e) => setStyle(i, { steps: Number(e.target.value) })} /></Field>
               <div className="sm:col-span-3"><Field label="Чем отличается стиль"><textarea id={`style${i}Direction`} rows={2} className={input} value={s.direction} onChange={(e) => setStyle(i, { direction: e.target.value })} /></Field></div>
               <div className="sm:col-span-3"><Field label="Обёртка для модели картинки ({prompt})"><input id={`style${i}Suffix`} className={mono} value={s.suffix} onChange={(e) => setStyle(i, { suffix: e.target.value })} /></Field></div>
+              {n.styles.length > 1 && (
+                <div className="text-right sm:col-span-3">
+                  <button type="button" onClick={() => removeStyle(i)} className="text-xs text-bad hover:underline">
+                    Удалить стиль {s.key}
+                  </button>
+                </div>
+              )}
             </div>
           ))}
+          {n.styles.length < 7 && (
+            <button type="button" onClick={addStyle} className="w-full rounded-lg border border-dashed border-line px-3 py-2 text-sm text-muted hover:border-ink hover:text-ink">
+              + Добавить стиль
+            </button>
+          )}
         </div>
       </Section>
 

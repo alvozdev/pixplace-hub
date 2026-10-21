@@ -1,9 +1,10 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { job, jobs, newJobId, saveJob, startedToday, type Job } from "@/lib/jobs";
-import { callNichePost } from "@/lib/n8n";
+import { callNichePost, hubOrigin } from "@/lib/n8n";
 import { niche, type NicheConfig } from "@/lib/niches";
 import { publishToPortal } from "@/lib/pixplace";
+import { postAlbum } from "@/lib/telegram-album";
 import { credential } from "@/lib/store";
 
 export interface ActionResult {
@@ -39,19 +40,43 @@ export async function publish(jobId: string): Promise<ActionResult> {
   const n = await niche(j.nicheId);
   if (!n) return { ok: false, message: "Ниша черновика удалена" };
 
-  await saveJob({ ...j, status: "publishing", error: undefined });
-  // The portal goes first so its result is saved before n8n can report back.
-  const portal = await toPortal(n, j);
-  await saveJob({ ...j, status: "publishing", error: undefined, portal });
+  // The panel posts to the portal and Telegram itself, then hands the Telegram link and the
+  // collage to n8n for Pinterest (Make) and the USED_IDs record. Finished steps are skipped on retry.
+  let cur: Job = { ...j, status: "publishing", error: undefined };
+  await saveJob(cur);
+  cur = { ...cur, portal: await toPortal(n, cur) };
+  if (cur.telegram?.status !== "published") {
+    try {
+      cur = { ...cur, telegram: { status: "published", url: await postAlbum(n, j.draft) } };
+    } catch (e) {
+      cur = { ...cur, telegram: { status: "failed", error: (e as Error).message } };
+    }
+  }
+  if (cur.telegram?.status === "failed") return fail(cur, cur.telegram.error!);
+  await saveJob(cur);
+
+  const origin = await hubOrigin();
   try {
-    await callNichePost("publish", { jobId: j.id, niche: n, draft: j.draft, makeWebhookUrl: (await credential(n.makeWebhookKey)) ?? "" });
+    await callNichePost("publish", {
+      jobId: j.id,
+      niche: n,
+      draft: j.draft,
+      telegramUrl: cur.telegram?.url ?? "",
+      collageUrl: `${origin}/api/collage/${j.id}`,
+      makeWebhookUrl: (await credential(n.makeWebhookKey)) ?? "",
+    });
   } catch (e) {
-    await saveJob({ ...j, status: "publish_failed", error: (e as Error).message, portal });
-    revalidatePath("/drafts");
-    return { ok: false, message: (e as Error).message };
+    return fail(cur, `Pinterest: ${(e as Error).message}`);
   }
   revalidatePath("/drafts");
-  return { ok: true, message: portal?.status === "failed" ? `Telegram и Pinterest запущены, портал: ${portal.error}` : "Публикация запущена" };
+  const warning = cur.portal?.status === "failed" ? `, но портал: ${cur.portal.error}` : "";
+  return { ok: !warning, message: `Опубликовано в Telegram${warning}. Pinterest отправляется через n8n.` };
+}
+
+async function fail(j: Job, message: string): Promise<ActionResult> {
+  await saveJob({ ...j, status: "publish_failed", error: message });
+  revalidatePath("/drafts");
+  return { ok: false, message };
 }
 
 /** Publishes to the portal unless the niche has it off or this job is already there. */

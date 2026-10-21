@@ -12,7 +12,7 @@ export async function callNichePost(action: "generate" | "publish", body: Record
   const res = await fetch(`${base.replace(/\/$/, "")}/pixplace-hub/${action}`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-hub-token": token },
-    body: JSON.stringify({ ...body, callbackUrl: await callbackUrl() }),
+    body: JSON.stringify({ ...body, callbackUrl: `${await hubOrigin()}/api/n8n/callback` }),
     cache: "no-store",
     signal: AbortSignal.timeout(20_000),
   });
@@ -24,9 +24,10 @@ export async function callNichePost(action: "generate" | "publish", body: Record
   }
 }
 
-async function callbackUrl() {
+/** Public address of this panel, taken from the current request. */
+export async function hubOrigin() {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
   const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
-  return `${proto}://${host}/api/n8n/callback`;
+  return `${proto}://${host}`;
 }

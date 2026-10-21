@@ -1,5 +1,6 @@
 import "server-only";
 import type { Draft } from "./jobs";
+import { appLink } from "./links";
 import type { NicheConfig } from "./niches";
 import { PORTAL_ACCOUNTS, portalAccount } from "./portal-accounts";
 import { credential } from "./store";
@@ -40,9 +41,6 @@ function explain(status: number, json: { error?: string; message?: string }, ret
   if (status === 400) return `портал отклонил пост: ${text || "неверные данные"}`;
   return `портал ответил ${status}${text ? `: ${text}` : ""}`;
 }
-
-const appLink = (prompt: string, utm: string) =>
-  `https://app.pixplace.space/?prompt=${encodeURIComponent(prompt)}&utm_source=pixplace&utm_campaign=${encodeURIComponent(utm)}`;
 
 /**
  * Publishes a draft as one portal post from the niche's account. Uses the carousel API
@@ -87,7 +85,7 @@ export async function publishToPortal(n: NicheConfig, d: Draft, jobId: string): 
           altText: v.altText.slice(0, 500),
           prompt: v.prompt.slice(0, 2000),
         })),
-        deeplinks: d.variants.slice(0, 5).map((v) => ({ url: appLink(v.prompt, n.telegram.utmCampaign || n.id), label: `Run ${v.style} in app`, iconType: "prompt" })),
+        deeplinks: d.variants.slice(0, 5).map((v) => ({ url: appLink(v.prompt, "pixplace", n.telegram.utmCampaign || n.id), label: `Run ${v.style} in app`, iconType: "prompt" })),
         seoKeywords: n.portal.seoKeywords.slice(0, 20),
         categories,
         tags,

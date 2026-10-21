@@ -22,7 +22,8 @@ function problems(n: NicheConfig): string[] {
     if (!num(part.temperature, 0, 2)) p.push(`${k}: температура 0–2`);
   }
   if (!n.variants.user.includes("{prompt}") || !n.variants.user.includes("{styles}")) p.push("промпт вариантов должен содержать {prompt} и {styles}");
-  if (n.styles.length !== 4) p.push("ровно 4 стиля (альбом в Telegram собирается из 4 картинок)");
+  if (n.styles.length < 1 || n.styles.length > 7) p.push("от 1 до 7 стилей");
+  if (new Set(n.styles.map((s) => s.key.trim().toUpperCase())).size !== n.styles.length) p.push("буквы стилей не должны повторяться");
   n.styles.forEach((s, i) => {
     if (!text(s.key) || !text(s.label) || !text(s.direction)) p.push(`стиль ${i + 1}: буква, название и направление`);
     if (!s.suffix.includes("{prompt}")) p.push(`стиль ${i + 1}: обёртка должна содержать {prompt}`);

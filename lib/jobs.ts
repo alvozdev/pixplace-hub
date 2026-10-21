@@ -42,7 +42,9 @@ export interface Job {
   draft?: Draft;
   error?: string;
   result?: { telegramUrl?: string; collageUrl?: string; pinterest?: "sent" | "failed" | "skipped" };
-  /** pixPLace portal post, published by the panel itself before n8n takes Telegram and Pinterest. */
+  /** Album in the niche's group thread, posted by the panel; its link goes to Pinterest via Make. */
+  telegram?: { status: "published" | "failed"; url?: string; error?: string };
+  /** pixPLace portal post, published by the panel itself before n8n takes Pinterest. */
   portal?: { status: "published" | "failed"; url?: string; mode?: "carousel" | "single"; error?: string };
 }
 

@@ -38,7 +38,7 @@ export default function JobCard({ job, nicheName }: { job: Job; nicheName: strin
 
       {(job.status === "generating" || job.status === "publishing") && (
         <p className="text-sm text-muted">
-          {job.status === "generating" ? "n8n анализирует референс и рисует 4 варианта…" : "Публикуем на портал, в Telegram и в Make…"} Страница обновится сама.
+          {job.status === "generating" ? "n8n анализирует референс и рисует 4 варианта…" : "Публикуем на портал и в Telegram, n8n отправляет в Make…"} Страница обновится сама.
         </p>
       )}
       {job.error && <p className="rounded-lg bg-bad/5 px-3 py-2 text-sm text-bad">{job.error}</p>}
@@ -102,14 +102,14 @@ export default function JobCard({ job, nicheName }: { job: Job; nicheName: strin
         </div>
       )}
 
-      {job.status === "published" && job.result && (
+      {(job.telegram?.url || (job.status === "published" && job.result)) && (
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-          {job.result.telegramUrl && (
-            <a href={job.result.telegramUrl} target="_blank" rel="noreferrer" className="text-ok underline-offset-2 hover:underline">
+          {job.telegram?.url && (
+            <a href={job.telegram.url} target="_blank" rel="noreferrer" className="text-ok underline-offset-2 hover:underline">
               Пост в Telegram
             </a>
           )}
-          <span className="text-muted">Pinterest: {PINTEREST[job.result.pinterest ?? "skipped"]}</span>
+          {job.status === "published" && job.result && <span className="text-muted">Pinterest: {PINTEREST[job.result.pinterest ?? "skipped"]}</span>}
         </div>
       )}
 
