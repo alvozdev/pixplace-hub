@@ -5,3 +5,6 @@ node_modules
 next-env.d.ts
 *.tsbuildinfo
 .data
+
+# Make webhook URLs copied from the old n8n workflows; filled into the workflow at deploy time
+n8n/*.local.json

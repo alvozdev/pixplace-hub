@@ -35,8 +35,8 @@ export const SERVICES: Service[] = [
   },
   {
     id: "make",
-    title: "Pinterest через Make",
-    how: "Вебхуки сценариев Make, которые публикуют в Pinterest. Чтобы не упираться в лимит операций Make, в одно поле можно вставить 2–3 вебхука с разных аккаунтов через пробел: месяц делится между ними по дням (1–11, 12–22, 23–31), как было в старых воркфлоу. Пустое поле — Pinterest для ниши пропускается.",
+    title: "Pinterest через Make (необязательно)",
+    how: "Заполнять не нужно: воркфлоу n8n сам берёт вебхуки Make из старых воркфлоу и так же делит месяц между аккаунтами Make. Поле — только если захотите заменить вебхук ниши (можно 2–3 через пробел).",
     testable: false,
     fields: [
       { key: "MAKE_WEBHOOK_CLIPART", label: "Вебхук Make · Clipart", secret: true, optional: true, placeholder: "https://hook.us2.make.com/…" },

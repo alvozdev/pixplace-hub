@@ -35,7 +35,7 @@ export default async function Niches() {
               <dt className="text-muted">Telegram</dt>
               <dd>тред {n.telegram.threadId}</dd>
               <dt className="text-muted">Pinterest</dt>
-              <dd className={make[i] ? "" : "text-warn"}>{make[i] ? "вебхук Make задан" : "нет вебхука Make — будет пропущен"}</dd>
+              <dd>{make[i] ? "вебхук Make из админки" : "вебхуки Make из старых воркфлоу n8n"}</dd>
               <dt className="text-muted">Лимит</dt>
               <dd>{n.dailyLimit} в день{n.dailyBudgetUsd > 0 ? ` · до $${n.dailyBudgetUsd}` : ""}</dd>
             </dl>
