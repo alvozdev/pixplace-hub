@@ -64,6 +64,13 @@ export function newJobId() {
   return `job_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+const isToday = (j: Job) => j.createdAt.startsWith(new Date().toISOString().slice(0, 10));
+
+/** What a niche's drafts generated today (UTC) cost, to enforce its daily budget. */
+export function spentToday(all: Job[], nicheId: string) {
+  return all.filter((j) => j.nicheId === nicheId && isToday(j)).reduce((sum, j) => sum + (j.draft?.cost.total ?? 0), 0);
+}
+
 /** Jobs started today (UTC) for a niche, to enforce its daily limit. */
 export function startedToday(all: Job[], nicheId: string) {
   const day = new Date().toISOString().slice(0, 10);

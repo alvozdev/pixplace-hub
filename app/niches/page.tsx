@@ -25,8 +25,11 @@ export default async function Niches() {
               <span className="ml-auto font-mono text-[11px] text-muted">{n.updatedAt ? "изменено" : "исходные настройки"}</span>
             </div>
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
-              <dt className="text-muted">Стили</dt>
-              <dd>{n.styles.map((s) => `${s.key} · ${s.label}`).join(", ")}</dd>
+              <dt className="text-muted">{n.format === "rotate" ? "Рубрики" : "Стили"}</dt>
+              <dd>
+                {n.styles.map((s) => `${s.key} · ${s.label}`).join(", ")}
+                <span className="text-muted">{n.format === "rotate" ? " — по одной на пост" : ` — ${n.styles.length} в посте`}</span>
+              </dd>
               <dt className="text-muted">Картинка</dt>
               <dd className="font-mono">{n.image.model} · {n.image.width}×{n.image.height}</dd>
               <dt className="text-muted">Telegram</dt>
@@ -34,7 +37,7 @@ export default async function Niches() {
               <dt className="text-muted">Pinterest</dt>
               <dd className={make[i] ? "" : "text-warn"}>{make[i] ? "вебхук Make задан" : "нет вебхука Make — будет пропущен"}</dd>
               <dt className="text-muted">Лимит</dt>
-              <dd>{n.dailyLimit} в день</dd>
+              <dd>{n.dailyLimit} в день{n.dailyBudgetUsd > 0 ? ` · до $${n.dailyBudgetUsd}` : ""}</dd>
             </dl>
             <Link href={`/niches/${n.id}`} className="inline-block rounded-lg border border-line px-3 py-1.5 text-sm hover:border-ink">
               Настроить

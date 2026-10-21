@@ -14,7 +14,9 @@ const num = (v: unknown, min: number, max: number) => typeof v === "number" && N
 function problems(n: NicheConfig): string[] {
   const p: string[] = [];
   if (!text(n.name)) p.push("название");
-  if (!/^https:\/\//.test(n.datasetUrl)) p.push("ссылка на пул референсов (https://…)");
+  if (n.enabled && !/^https:\/\//.test(n.datasetUrl)) p.push("ссылка на пул референсов (https://…), без неё нишу не включить");
+  if (!num(n.dailyBudgetUsd, 0, 1000)) p.push("дневной бюджет $0–1000");
+  if (n.format !== "album" && n.format !== "rotate") p.push("формат поста");
   if (!num(n.dailyLimit, 0, 200)) p.push("лимит в день (0–200)");
   for (const [k, part] of [["анализ", n.analyze], ["варианты", n.variants]] as const) {
     if (!text(part.model) || !text(part.system) || !text(part.user)) p.push(`${k}: модель и оба промпта`);

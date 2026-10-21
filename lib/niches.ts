@@ -24,6 +24,10 @@ export interface NicheConfig {
   /** JSON pool of reference pins from the reference-sorting tool. */
   datasetUrl: string;
   dailyLimit: number;
+  /** Stop generating for the day once drafts cost this much in USD; 0 means no cap. */
+  dailyBudgetUsd: number;
+  /** "album": every style in one post. "rotate": one style per post, taking turns, like rubrics. */
+  format: "album" | "rotate";
   analyze: { model: string; system: string; user: string; maxTokens: number; temperature: number };
   variants: { model: string; system: string; user: string; maxTokens: number; temperature: number };
   styles: NicheStyle[];
@@ -43,6 +47,8 @@ const CLIPART: NicheConfig = {
   dedupColumn: "clip_art",
   datasetUrl: "https://dataset-editorial.vercel.app/api/dataset?id=44eb9c65-d89a-4e2d-9881-fbe361d5d587",
   dailyLimit: 3,
+  dailyBudgetUsd: 0,
+  format: "album",
   analyze: {
     model: "meta-llama/llama-4-maverick",
     maxTokens: 1500,
@@ -100,6 +106,8 @@ const INTERIOR: NicheConfig = {
   dedupColumn: "interior",
   datasetUrl: "https://dataset-editorial.vercel.app/api/dataset?id=22809d54-49c4-4c2d-930d-5a130cc09525",
   dailyLimit: 5,
+  dailyBudgetUsd: 0,
+  format: "album",
   analyze: {
     model: "meta-llama/llama-4-maverick",
     maxTokens: 2000,
@@ -144,6 +152,8 @@ const FASHION: NicheConfig = {
   dedupColumn: "fashion",
   datasetUrl: "https://raw.githubusercontent.com/iremojoferod28-prog/data-set/main/pinterest-dataset-summer-fashion-236-set.json",
   dailyLimit: 5,
+  dailyBudgetUsd: 0,
+  format: "rotate",
   analyze: {
     model: "meta-llama/llama-4-maverick",
     maxTokens: 2000,
@@ -159,10 +169,19 @@ const FASHION: NicheConfig = {
     temperature: 0.8,
     system: PROMPT_RULES,
     user:
-      "Base idea:\n{prompt}\n\nTurn it into a premium fashion magazine cover for each style below. Today is {weekday}; use today's masthead and spell it exactly: Monday Forbes, Tuesday Vogue, Wednesday L'Officiel, Thursday ELLE, Friday pixPLace ReFashion, Saturday ELLE, Sunday Harper's Bazaar. Keep cover lines short and readable. Describe the model, outfit, fabrics, pose, lighting and cover layout.\n\nStyles:\n{styles}\n\nFor every style also write an SEO title under 80 characters, an SEO description of 1-3 sentences with keywords for fashion design ideas and AI styling, and one sentence of alt text.",
+      "Base idea:\n{prompt}\n\nWrite the final prompt for each style below. Each style is a separate rubric of the pixPLace fashion feed, so follow its direction closely: model and pose, outfit and silhouette, fabrics and textures, styling, setting, lighting and camera framing. Never use real magazine names or fashion brands; any text in the image must be short and spelled exactly as given.\n\nStyles:\n{styles}\n\nFor every style also write an SEO title under 80 characters, an SEO description of 1-3 sentences with keywords for fashion design ideas and AI styling, and one sentence of alt text.",
   },
   styles: [
-    { key: "A", label: "Magazine cover", direction: "premium fashion magazine cover with an editorial photo and a clean masthead", suffix: "{prompt}. Premium Magazine Poster, Main Page of Top Fashion Magazine", steps: 18 },
+    {
+      key: "A",
+      label: "pixPLace cover",
+      direction:
+        "premium fashion magazine cover. Today is {weekday}; the masthead is pixPLace plus today's theme: Monday POWER DRESSING, Tuesday STYLE EDIT, Wednesday L'ATELIER, Thursday STREET, Friday REFASHION, Saturday WEEKEND, Sunday COUTURE. Two or three short cover lines, clean editorial layout",
+      suffix: "{prompt}. Premium Magazine Poster, Main Page of Top Fashion Magazine",
+      steps: 18,
+    },
+    { key: "B", label: "Street editorial", direction: "candid street-style editorial photo, natural city light, full-body look in motion, no text", suffix: "{prompt}. street style fashion editorial, ultra detailed, high-end textures", steps: 18 },
+    { key: "C", label: "Lookbook", direction: "clean studio lookbook shot, full body, neutral seamless background, focus on garment construction and fabrics, no text", suffix: "{prompt}. fashion lookbook, studio light, ultra detailed fabrics", steps: 18 },
   ],
   image: { model: "runware:400@2", width: 832, height: 1280, cfg: 4, format: "WEBP", lora: [{ model: "watisha:164@164", weight: 1 }] },
   telegram: {
@@ -188,6 +207,8 @@ const PRODUCTS: NicheConfig = {
   dedupColumn: "product_mocups",
   datasetUrl: "https://raw.githubusercontent.com/iremojoferod28-prog/data-set/main/pinterest-dataset-product-mockup.json",
   dailyLimit: 5,
+  dailyBudgetUsd: 0,
+  format: "album",
   analyze: {
     model: "meta-llama/llama-4-maverick",
     maxTokens: 2000,
@@ -225,14 +246,66 @@ const PRODUCTS: NicheConfig = {
   },
 };
 
-export const DEFAULT_NICHES: NicheConfig[] = [CLIPART, INTERIOR, FASHION, PRODUCTS];
+// New: references for artists and AI users — character sheets, poses and expressions.
+// Off until it has its own reference pool and Telegram thread. Image settings follow the old
+// "Characters & Ai Avatars" workflow, which had turned into a copy of product mockups.
+const CHARACTERS: NicheConfig = {
+  id: "characters",
+  name: "Characters & poses",
+  enabled: false,
+  // USED_IDs has no column of its own for this niche yet; pin ids are unique across Pinterest, so sharing one is safe.
+  dedupColumn: "clip_art",
+  datasetUrl: "",
+  dailyLimit: 5,
+  dailyBudgetUsd: 0,
+  format: "album",
+  analyze: {
+    model: "meta-llama/llama-4-maverick",
+    maxTokens: 2000,
+    temperature: 0.8,
+    system:
+      "You are the art director of pixPLace, an AI image platform, and a character designer. You design a new, original character inspired by the reference. You never copy it, and you never reproduce existing franchise characters or real people. Return only JSON that matches the schema.",
+    user:
+      "Study the reference image as a character concept. Keep its core idea: archetype, era or genre, body type, outfit logic, palette and attitude. Make it original: change the face, hairstyle, outfit details and accessories, and remove any logos or text. Write base_prompt as a ready text-to-image prompt of 120-220 words describing one consistent character: age range, build, face and hair, outfit layers and materials, accessories, palette, personality and art style. Then write title (under 80 characters), seo_description (1-3 sentences with keywords for character design references and pose references) and alt_text (one sentence).",
+  },
+  variants: {
+    model: "openai/gpt-4.1-mini",
+    maxTokens: 3000,
+    temperature: 0.8,
+    system: PROMPT_RULES,
+    user:
+      "Base character:\n{prompt}\n\nWrite one prompt for each style below. The character must stay the same in every prompt: same face, hair, outfit and palette, so the images work as one reference set. Use a plain light background and even lighting so shapes and anatomy read clearly. No text except short view labels where a style asks for them.\n\nStyles:\n{styles}\n\nFor every style also write an SEO title under 80 characters, an SEO description of 1-3 sentences with keywords for character design, pose reference and drawing reference, and one sentence of alt text.",
+  },
+  styles: [
+    { key: "A", label: "Character sheet", direction: "character turnaround sheet: front, three-quarter, side and back views in a row, full body, neutral pose", suffix: "{prompt}. character reference sheet, turnaround, ultra detailed, clean background", steps: 18 },
+    { key: "B", label: "Pose reference", direction: "one dynamic full-body action pose with clear anatomy and readable silhouette, slight perspective", suffix: "{prompt}. dynamic pose reference, full body, ultra detailed, clean background", steps: 18 },
+    { key: "C", label: "Expressions", direction: "expression sheet: six head shots in a grid with different emotions (joy, anger, surprise, sadness, determination, calm)", suffix: "{prompt}. facial expression sheet, ultra detailed, clean background", steps: 18 },
+  ],
+  image: { model: "runware:400@2", width: 832, height: 1280, cfg: 4, format: "WEBP", lora: [{ model: "watisha:164@164", weight: 1 }] },
+  telegram: {
+    ...GROUP,
+    threadId: 0,
+    utmCampaign: "characters_post",
+    intro: "🧍 Character references: turnaround, poses and expressions. Load any prompt into the app in one click.",
+    hashtags: "#characterdesign #posereference #characterreference #conceptart #aiart #pixPLace",
+  },
+  makeWebhookKey: "MAKE_WEBHOOK_CHARACTERS",
+  portal: {
+    enabled: true,
+    account: "characters",
+    tags: ["character-design", "pose-reference", "character-sheet", "concept-art", "expressions"],
+    seoKeywords: ["character reference sheet", "pose reference", "character design", "expression sheet"],
+  },
+};
+
+export const DEFAULT_NICHES: NicheConfig[] = [CLIPART, INTERIOR, FASHION, PRODUCTS, CHARACTERS];
 
 const store = collection<NicheConfig>("niches");
 
 /** Fills fields added after a niche was saved, so older records keep working. */
 function withDefaults(n: NicheConfig): NicheConfig {
   const portal = DEFAULT_NICHES.find((d) => d.id === n.id)?.portal ?? { ...CLIPART.portal, enabled: false };
-  return { ...n, portal: { ...portal, ...n.portal } };
+  return { ...n, dailyBudgetUsd: n.dailyBudgetUsd ?? 0, format: n.format ?? "album", portal: { ...portal, ...n.portal } };
 }
 
 export async function niches(): Promise<NicheConfig[]> {

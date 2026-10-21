@@ -40,6 +40,13 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         <Grid>
           <Field label="Название"><input id="name" className={input} value={n.name} onChange={(e) => set("name", e.target.value)} /></Field>
           <Field label="Лимит постов в день"><input id="dailyLimit" type="number" className={input} value={n.dailyLimit} onChange={(e) => set("dailyLimit", Number(e.target.value))} /></Field>
+          <Field label="Бюджет в день, $ (0 — без лимита)"><input id="dailyBudget" type="number" step="0.1" className={input} value={n.dailyBudgetUsd} onChange={(e) => set("dailyBudgetUsd", Number(e.target.value))} /></Field>
+          <Field label="Формат поста">
+            <select id="format" className={input} value={n.format} onChange={(e) => set("format", e.target.value as NicheConfig["format"])}>
+              <option value="album">Все стили в одном посте (альбом)</option>
+              <option value="rotate">Один стиль на пост по очереди (рубрики)</option>
+            </select>
+          </Field>
         </Grid>
         <Field label="Пул референсов (JSON из интерфейса сортировки)"><input id="datasetUrl" className={mono} value={n.datasetUrl} onChange={(e) => set("datasetUrl", e.target.value)} /></Field>
         <label className="flex items-center gap-2 text-sm">

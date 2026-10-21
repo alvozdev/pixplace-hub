@@ -1,10 +1,11 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { job, jobs, newJobId, saveJob, startedToday, type Job } from "@/lib/jobs";
+import { job, jobs, newJobId, saveJob, spentToday, startedToday, type Job } from "@/lib/jobs";
 import { callNichePost, hubOrigin } from "@/lib/n8n";
 import { niche, type NicheConfig } from "@/lib/niches";
 import { publishToPortal } from "@/lib/pixplace";
 import { postAlbum } from "@/lib/telegram-album";
+import { pickMakeHook } from "@/lib/make";
 import { credential } from "@/lib/store";
 
 export interface ActionResult {
@@ -16,14 +17,21 @@ export async function generate(nicheId: string): Promise<ActionResult> {
   const n = await niche(nicheId);
   if (!n) return { ok: false, message: "Нет такой ниши" };
   if (!n.enabled) return { ok: false, message: `Ниша «${n.name}» выключена в настройках` };
-  const today = startedToday(await jobs(), n.id);
+  const all = await jobs();
+  const today = startedToday(all, n.id);
   if (today >= n.dailyLimit) return { ok: false, message: `Лимит ниши на сегодня исчерпан: ${today} из ${n.dailyLimit}` };
+  const spent = spentToday(all, n.id);
+  if (n.dailyBudgetUsd > 0 && spent >= n.dailyBudgetUsd) {
+    return { ok: false, message: `Дневной бюджет ниши исчерпан: $${spent.toFixed(2)} из $${n.dailyBudgetUsd}` };
+  }
+  // Rubrics: one style per post, taking turns across all of the niche's drafts.
+  const styles = n.format === "rotate" ? [n.styles[all.filter((j) => j.nicheId === n.id && j.status !== "failed").length % n.styles.length]] : n.styles;
 
   const now = new Date().toISOString();
   const id = newJobId();
   await saveJob({ id, nicheId: n.id, status: "generating", createdAt: now, updatedAt: now });
   try {
-    await callNichePost("generate", { jobId: id, niche: n });
+    await callNichePost("generate", { jobId: id, niche: { ...n, styles } });
   } catch (e) {
     await saveJob({ id, nicheId: n.id, status: "failed", createdAt: now, updatedAt: now, error: (e as Error).message });
     revalidatePath("/drafts");
@@ -64,7 +72,7 @@ export async function publish(jobId: string): Promise<ActionResult> {
       telegramUrl: cur.telegram?.url ?? "",
       portalUrl: cur.portal?.url ?? "",
       collageUrl: `${origin}/api/collage/${j.id}`,
-      makeWebhookUrl: (await credential(n.makeWebhookKey)) ?? "",
+      makeWebhookUrl: pickMakeHook(await credential(n.makeWebhookKey)),
     });
   } catch (e) {
     return fail(cur, `Pinterest: ${(e as Error).message}`);
