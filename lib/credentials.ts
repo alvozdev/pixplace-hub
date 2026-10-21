@@ -1,3 +1,5 @@
+import { PORTAL_ACCOUNTS } from "./portal-accounts";
+
 /** Everything the admin panel lets you connect, grouped by service. */
 
 export interface Field {
@@ -5,6 +7,10 @@ export interface Field {
   label: string;
   secret: boolean;
   placeholder?: string;
+  /** Not needed for the service to work, e.g. a URL with a sensible default. */
+  optional?: boolean;
+  /** Shows a button that fills the field with a random token. */
+  generate?: boolean;
 }
 
 export interface Service {
@@ -20,11 +26,11 @@ export const SERVICES: Service[] = [
   {
     id: "n8n-hub",
     title: "Связь панели с n8n",
-    how: "Нужна, чтобы кнопки «Сгенерировать» и «Опубликовать» запускали воркфлоу «pixPLace Hub · Niche post». Адрес — https://alv-n8n.pixplace.space/webhook. Токен — любая длинная случайная строка; ту же строку вставьте в n8n в учётку Header Auth «pixPLace Hub token» (имя заголовка x-hub-token).",
+    how: "Токен, по которому n8n узнаёт панель. Нажмите «Сгенерировать», скопируйте строку и сохраните. Ту же строку вставьте в n8n: Credentials → Header Auth «pixPLace Hub token», Name = x-hub-token, Value = эта строка. Адрес менять не нужно.",
     testable: false,
     fields: [
-      { key: "N8N_WEBHOOK_BASE", label: "Адрес вебхуков n8n", secret: false, placeholder: "https://alv-n8n.pixplace.space/webhook" },
-      { key: "HUB_N8N_TOKEN", label: "Токен панели", secret: true },
+      { key: "HUB_N8N_TOKEN", label: "Токен панели", secret: true, generate: true },
+      { key: "N8N_WEBHOOK_BASE", label: "Адрес вебхуков n8n (необязательно)", secret: false, optional: true, placeholder: "https://alv-n8n.pixplace.space/webhook" },
     ],
   },
   {
@@ -60,13 +66,10 @@ export const SERVICES: Service[] = [
   },
   {
     id: "pixplace",
-    title: "Портал Pix Place",
-    how: "Адрес API портала и ключ с правом публикации.",
-    testable: false,
-    fields: [
-      { key: "PIXPLACE_API_URL", label: "Адрес API", secret: false, placeholder: "https://pixplace…/api" },
-      { key: "PIXPLACE_API_KEY", label: "API-ключ", secret: true },
-    ],
+    title: "Портал pixPLace",
+    how: "Каждое направление публикует со своего аккаунта. Ключ: войти на pixplace.space под аккаунтом направления → Settings → Developer → создать ключ ppk_live_… (показывается один раз). Лимит портала — 50 постов в сутки на ключ. «Проверить» читает последний пост каждого аккаунта, ничего не публикуя.",
+    testable: true,
+    fields: PORTAL_ACCOUNTS.map((a) => ({ key: a.keyName, label: `${a.name} · @${a.username}`, secret: true, optional: true, placeholder: "ppk_live_…" })),
   },
 ];
 

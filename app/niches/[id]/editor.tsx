@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { NicheConfig } from "@/lib/niches";
+import { PORTAL_ACCOUNTS } from "@/lib/portal-accounts";
 import { resetNicheAction, saveNicheAction, type SaveResult } from "../actions";
 
 const input = "w-full rounded-lg border border-line bg-bg/40 px-3 py-2 text-sm outline-none focus:border-ink";
@@ -13,9 +14,11 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
   const [result, setResult] = useState<SaveResult | null>(null);
 
   const set = <K extends keyof NicheConfig>(k: K, v: NicheConfig[K]) => setN({ ...n, [k]: v });
-  const setPart = <K extends "analyze" | "variants" | "image" | "telegram">(k: K, v: Partial<NicheConfig[K]>) => setN({ ...n, [k]: { ...n[k], ...v } });
+  const setPart = <K extends "analyze" | "variants" | "image" | "telegram" | "portal">(k: K, v: Partial<NicheConfig[K]>) => setN({ ...n, [k]: { ...n[k], ...v } });
   const setStyle = (i: number, v: Partial<NicheConfig["styles"][number]>) => setN({ ...n, styles: n.styles.map((s, j) => (j === i ? { ...s, ...v } : s)) });
   const lora = n.image.lora[0] ?? { model: "", weight: 1 };
+  const list = (v: string) => v.split(",").map((t) => t.trim()).filter(Boolean);
+  const account = PORTAL_ACCOUNTS.find((a) => a.id === n.portal.account);
 
   return (
     <div className="space-y-8">
@@ -106,6 +109,27 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         <Field label="Текст после заголовка"><textarea id="tgIntro" rows={2} className={input} value={n.telegram.intro} onChange={(e) => setPart("telegram", { intro: e.target.value })} /></Field>
         <Field label="Текст перед хэштегами"><textarea id="tgFooter" rows={2} className={input} value={n.telegram.footer} onChange={(e) => setPart("telegram", { footer: e.target.value })} /></Field>
         <Field label="Хэштеги"><input id="tgTags" className={input} value={n.telegram.hashtags} onChange={(e) => setPart("telegram", { hashtags: e.target.value })} /></Field>
+      </Section>
+
+      <Section title="5. Портал pixPLace" hint="Одна карусель из 4 картинок с аккаунта направления, кнопки «Run in app» ведут в приложение с промптом">
+        <label className="flex items-center gap-2 text-sm">
+          <input id="portalEnabled" type="checkbox" checked={n.portal.enabled} onChange={(e) => setPart("portal", { enabled: e.target.checked })} className="accent-ink" />
+          Публиковать на портал
+        </label>
+        <Grid>
+          <Field label="Аккаунт направления">
+            <select id="portalAccount" className={input} value={n.portal.account} onChange={(e) => setPart("portal", { account: e.target.value })}>
+              {PORTAL_ACCOUNTS.map((a) => (
+                <option key={a.id} value={a.id}>{a.name} · @{a.username}</option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Категория на портале">
+            <input className={`${input} text-muted`} value={account?.category ?? "нет, только теги"} readOnly />
+          </Field>
+        </Grid>
+        <Field label="Теги через запятую (до 10)"><input id="portalTags" className={input} defaultValue={n.portal.tags.join(", ")} onBlur={(e) => setPart("portal", { tags: list(e.target.value) })} /></Field>
+        <Field label="SEO-ключи через запятую (до 20)"><input id="portalSeo" className={input} defaultValue={n.portal.seoKeywords.join(", ")} onBlur={(e) => setPart("portal", { seoKeywords: list(e.target.value) })} /></Field>
       </Section>
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-2 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur">

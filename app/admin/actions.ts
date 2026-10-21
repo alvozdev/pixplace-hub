@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { SERVICES, FIELD_KEYS } from "@/lib/credentials";
+import { checkPortalKeys } from "@/lib/pixplace";
 import { credential, deleteCredential, saveCredential } from "@/lib/store";
 
 export interface ActionResult {
@@ -57,13 +58,10 @@ export async function testService(serviceId: string): Promise<ActionResult> {
       }
       return { ok: true, message: notes.join(" · ") };
     }
-    if (serviceId === "n8n") {
-      const url = await credential("N8N_API_URL");
-      const key = await credential("N8N_API_KEY");
-      if (!url || !key) return { ok: false, message: "Сначала сохраните адрес и API-ключ" };
-      const r = await getJson(`${url.replace(/\/$/, "")}/api/v1/workflows?limit=250`, { "X-N8N-API-KEY": key });
-      if (!r.res.ok) return { ok: false, message: `n8n ответил ${r.res.status}` };
-      return { ok: true, message: `n8n на связи · воркфлоу: ${r.body.data?.length ?? 0}` };
+    if (serviceId === "pixplace") {
+      const notes = await checkPortalKeys();
+      if (!notes.length) return { ok: false, message: "Сначала сохраните хотя бы один ключ" };
+      return { ok: notes.every((n) => n.endsWith(": ок")), message: notes.join(" · ") };
     }
     return { ok: false, message: "Для этого сервиса проверка пока недоступна" };
   } catch (e) {

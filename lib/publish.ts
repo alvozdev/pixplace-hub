@@ -50,7 +50,7 @@ async function publishOne(id: ChannelId, input: PublishInput) {
     case "n8n":
       throw new Error("Pinterest публикуется из раздела «Черновики» через воркфлоу n8n");
     case "pixplace":
-      return postJson(`${await env("PIXPLACE_API_URL")}/posts`, input, { authorization: `Bearer ${await env("PIXPLACE_API_KEY")}` });
+      throw new Error("Портал публикуется из раздела «Черновики» с аккаунта направления");
     case "buffer":
       throw new Error("Buffer пока не подключён в коде: нужен токен и id профиля");
   }

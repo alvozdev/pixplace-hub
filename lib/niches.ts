@@ -31,6 +31,8 @@ export interface NicheConfig {
   telegram: { chatId: string; threadId: number; publicUsername: string; utmCampaign: string; intro: string; footer: string; hashtags: string };
   /** Admin-panel key holding this niche's Make webhook (Pinterest). */
   makeWebhookKey: string;
+  /** pixPLace portal post: which direction account publishes it, plus tags and SEO keywords. */
+  portal: { enabled: boolean; account: string; tags: string[]; seoKeywords: string[] };
   updatedAt?: string;
 }
 
@@ -76,21 +78,34 @@ const CLIPART: NicheConfig = {
     hashtags: "#AI_Art_Assets #clipartdesign #aistickers #printdesign #ailogo #pixPLace",
   },
   makeWebhookKey: "MAKE_WEBHOOK_CLIPART",
+  portal: {
+    enabled: true,
+    account: "clipart",
+    tags: ["clipart", "stickers", "printable", "ai-art", "logo"],
+    seoKeywords: ["ai clipart", "sticker design", "printable art", "ai logo"],
+  },
 };
 
 export const DEFAULT_NICHES: NicheConfig[] = [CLIPART];
 
 const store = collection<NicheConfig>("niches");
 
+/** Fills fields added after a niche was saved, so older records keep working. */
+function withDefaults(n: NicheConfig): NicheConfig {
+  const portal = DEFAULT_NICHES.find((d) => d.id === n.id)?.portal ?? { ...CLIPART.portal, enabled: false };
+  return { ...n, portal: { ...portal, ...n.portal } };
+}
+
 export async function niches(): Promise<NicheConfig[]> {
-  const saved = await store.all();
+  const saved = (await store.all()).map(withDefaults);
   const byId = new Map(saved.map((n) => [n.id, n]));
   for (const d of DEFAULT_NICHES) if (!byId.has(d.id)) byId.set(d.id, d);
   return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function niche(id: string): Promise<NicheConfig | undefined> {
-  return (await store.get(id)) ?? DEFAULT_NICHES.find((n) => n.id === id);
+  const saved = await store.get(id);
+  return saved ? withDefaults(saved) : DEFAULT_NICHES.find((n) => n.id === id);
 }
 
 export async function saveNiche(n: NicheConfig) {

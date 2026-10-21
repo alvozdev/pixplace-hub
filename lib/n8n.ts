@@ -2,11 +2,13 @@ import "server-only";
 import { headers } from "next/headers";
 import { credential } from "./store";
 
+export const DEFAULT_WEBHOOK_BASE = "https://alv-n8n.pixplace.space/webhook";
+
 /** Calls the "pixPLace Hub · Niche post" workflow; n8n answers right away and reports back later. */
 export async function callNichePost(action: "generate" | "publish", body: Record<string, unknown>) {
-  const base = await credential("N8N_WEBHOOK_BASE");
+  const base = (await credential("N8N_WEBHOOK_BASE")) || DEFAULT_WEBHOOK_BASE;
   const token = await credential("HUB_N8N_TOKEN");
-  if (!base || !token) throw new Error("В админке не задан адрес вебхуков n8n или токен панели");
+  if (!token) throw new Error("В админке не задан токен панели для n8n");
   const res = await fetch(`${base.replace(/\/$/, "")}/pixplace-hub/${action}`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-hub-token": token },

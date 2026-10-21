@@ -17,7 +17,7 @@ export default async function Drafts() {
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">Черновики</h1>
         <p className="mt-1 max-w-2xl text-sm text-muted">
-          Сгенерируйте пост для ниши, проверьте 4 варианта и опубликуйте: альбом уйдёт в тред группы, коллаж и промпты — в Make для Pinterest.
+          Сгенерируйте пост для ниши, проверьте 4 варианта и опубликуйте: карусель уйдёт на портал pixPLace с аккаунта направления, альбом — в тред группы, коллаж и промпты — в Make для Pinterest.
         </p>
       </div>
 

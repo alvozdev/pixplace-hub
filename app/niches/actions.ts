@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { niche, resetNiche, saveNiche, type NicheConfig } from "@/lib/niches";
+import { portalAccount } from "@/lib/portal-accounts";
 
 export interface SaveResult {
   ok: boolean;
@@ -29,6 +30,9 @@ function problems(n: NicheConfig): string[] {
   });
   if (!text(n.image.model) || !num(n.image.width, 256, 2048) || !num(n.image.height, 256, 2048)) p.push("картинка: модель и размер 256–2048");
   if (!text(n.telegram.chatId) || !num(n.telegram.threadId, 0, 1e9)) p.push("Telegram: id чата и треда");
+  if (n.portal.enabled && !portalAccount(n.portal.account)) p.push("портал: выберите аккаунт направления");
+  if (n.portal.tags.length > 10) p.push("портал: не больше 10 тегов");
+  if (n.portal.seoKeywords.length > 20) p.push("портал: не больше 20 SEO-ключей");
   return p;
 }
 

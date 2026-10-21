@@ -1,7 +1,7 @@
 "use client";
 import { useState, useTransition } from "react";
 import type { Job, JobStatus } from "@/lib/jobs";
-import { publish, reject, type ActionResult } from "./actions";
+import { publish, reject, retryPortal, type ActionResult } from "./actions";
 
 const STATUS: Record<JobStatus, { label: string; cls: string }> = {
   generating: { label: "Генерируется", cls: "text-warn ring-warn/40" },
@@ -38,7 +38,7 @@ export default function JobCard({ job, nicheName }: { job: Job; nicheName: strin
 
       {(job.status === "generating" || job.status === "publishing") && (
         <p className="text-sm text-muted">
-          {job.status === "generating" ? "n8n анализирует референс и рисует 4 варианта…" : "n8n публикует альбом и отправляет в Make…"} Страница обновится сама.
+          {job.status === "generating" ? "n8n анализирует референс и рисует 4 варианта…" : "Публикуем на портал, в Telegram и в Make…"} Страница обновится сама.
         </p>
       )}
       {job.error && <p className="rounded-lg bg-bad/5 px-3 py-2 text-sm text-bad">{job.error}</p>}
@@ -79,6 +79,27 @@ export default function JobCard({ job, nicheName }: { job: Job; nicheName: strin
             </pre>
           )}
         </>
+      )}
+
+      {job.portal && (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          {job.portal.status === "published" ? (
+            <a href={job.portal.url} target="_blank" rel="noreferrer" className="text-ok underline-offset-2 hover:underline">
+              Пост на портале{job.portal.mode === "single" ? " (одна картинка: карусель портал ещё не принимает)" : ""}
+            </a>
+          ) : (
+            <>
+              <span className="text-bad">Портал: {job.portal.error}</span>
+              <button
+                disabled={pending}
+                onClick={() => start(async () => setResult(await retryPortal(job.id)))}
+                className="rounded-lg border border-line px-3 py-1 text-xs hover:border-ink disabled:opacity-40"
+              >
+                Повторить на портал
+              </button>
+            </>
+          )}
+        </div>
       )}
 
       {job.status === "published" && job.result && (
