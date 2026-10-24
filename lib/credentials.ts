@@ -49,12 +49,12 @@ export const SERVICES: Service[] = [
   {
     id: "telegram",
     title: "Telegram-бот",
-    how: "Создайте бота в @BotFather и добавьте его администратором в канал и группу. ID канала начинается с -100.",
+    how: "Нужен только токен того же бота, что публикует из n8n: @BotFather → /mybots → бот → API Token. Группа и треды для черновиков уже прописаны в нишах; ID канала и группы нужны только для ручных постов на «Пульте».",
     testable: true,
     fields: [
       { key: "TELEGRAM_BOT_TOKEN", label: "Токен бота", secret: true, placeholder: "123456:ABC…" },
-      { key: "TELEGRAM_CHANNEL_ID", label: "ID канала", secret: false, placeholder: "-100…" },
-      { key: "TELEGRAM_GROUP_ID", label: "ID группы", secret: false, placeholder: "-100…" },
+      { key: "TELEGRAM_CHANNEL_ID", label: "ID канала (необязательно)", secret: false, optional: true, placeholder: "-100…" },
+      { key: "TELEGRAM_GROUP_ID", label: "ID группы (необязательно)", secret: false, optional: true, placeholder: "-100…" },
     ],
   },
   {
