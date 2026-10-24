@@ -16,7 +16,15 @@ export default async function Drafts() {
 
   return (
     <div className="space-y-8">
-      <PageHead title="Черновики" kicker="генерация → проверка → публикация">
+      <PageHead
+        title="Черновики"
+        kicker="генерация → проверка → публикация"
+        action={
+          <a href="/demo" className="btn-glass px-4 py-2 text-sm">
+            ▶ Демо анимаций
+          </a>
+        }
+      >
         Сгенерируйте пост для ниши, проверьте варианты и опубликуйте: карусель уйдёт на портал pixPLace с аккаунта направления, альбом — в тред группы, коллаж и промпты — в Make для Pinterest.
       </PageHead>
 

@@ -32,7 +32,8 @@ export function StatusPill({ status }: { status: JobStatus }) {
   );
 }
 
-export default function JobCard({ job, nicheName }: { job: Job; nicheName: string }) {
+/** `demo` replaces the server actions, so the demo page can play the flow without n8n. */
+export default function JobCard({ job, nicheName, demo }: { job: Job; nicheName: string; demo?: { publish: () => void; reject: () => void } }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
   const [open, setOpen] = useState<string | null>(null);
@@ -155,12 +156,12 @@ export default function JobCard({ job, nicheName }: { job: Job; nicheName: strin
       {(canPublish || canReject) && (
         <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.08] pt-4">
           {canPublish && (
-            <button disabled={pending} onClick={() => start(async () => setResult(await publish(job.id)))} className="btn-primary w-full px-5 py-2.5 text-sm sm:w-auto">
+            <button disabled={pending} onClick={() => (demo ? demo.publish() : start(async () => setResult(await publish(job.id))))} className="btn-primary w-full px-5 py-2.5 text-sm sm:w-auto">
               {job.status === "publish_failed" ? "Опубликовать ещё раз" : "Опубликовать"}
             </button>
           )}
           {canReject && (
-            <button disabled={pending} onClick={() => start(async () => setResult(await reject(job.id)))} className="btn-glass w-full px-5 py-2.5 text-sm sm:w-auto">
+            <button disabled={pending} onClick={() => (demo ? demo.reject() : start(async () => setResult(await reject(job.id))))} className="btn-glass w-full px-5 py-2.5 text-sm sm:w-auto">
               Отклонить
             </button>
           )}
