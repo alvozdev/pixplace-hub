@@ -14,12 +14,12 @@ export default async function Board() {
     <div className="space-y-10">
       <section className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Куда что уходит</h1>
+          <h1 className="text-gradient font-display text-3xl sm:text-4xl font-semibold tracking-tight">Куда что уходит</h1>
           <p className="mt-1 text-sm text-muted">
             {NICHES.length} ниш · {CHANNELS.length} площадок · подключено {connected} из {CHANNELS.length} · генерация через n8n подключается по MCP
           </p>
         </div>
-        <a href="/compose" className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface hover:opacity-90">
+        <a href="/compose" className="btn-primary px-5 py-2.5 text-sm">
           Новый пост
         </a>
       </section>
@@ -27,14 +27,14 @@ export default async function Board() {
       <section className="space-y-3">
         <ul className="grid gap-2 md:hidden">
           {NICHES.map((n) => (
-            <li key={n.id} className="rounded-xl border border-line bg-surface p-3">
+            <li key={n.id} className="glass-card p-3">
               <div className="font-medium">{n.name}</div>
               <div className="text-xs text-muted">{n.tone}</div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {n.channels.map((id) => {
                   const c = channel(id);
                   return (
-                    <span key={id} className="flex items-center gap-1.5 rounded-md bg-bg px-2 py-1 text-xs">
+                    <span key={id} className="flex items-center gap-1.5 rounded-full bg-white/[0.06] px-2.5 py-1 text-xs ring-1 ring-white/10">
                       <Jack route={c.route} live={status[id].ready} size={9} />
                       {c.name}
                     </span>
@@ -44,7 +44,7 @@ export default async function Board() {
             </li>
           ))}
         </ul>
-        <div className="hidden overflow-x-auto rounded-xl border border-line bg-surface md:block">
+        <div className="hidden overflow-x-auto glass-card md:block">
           <table className="w-full min-w-[720px] border-collapse text-sm">
             <thead>
               <tr>
@@ -63,7 +63,7 @@ export default async function Board() {
             </thead>
             <tbody>
               {NICHES.map((n) => (
-                <tr key={n.id} className="border-t border-line/70 hover:bg-bg/60">
+                <tr key={n.id} className="border-t border-line/70 hover:bg-white/[0.03] transition-colors">
                   <td className="px-4 py-3">
                     <div className="font-medium">{n.name}</div>
                     <div className="text-xs text-muted">{n.tone}</div>
@@ -101,7 +101,7 @@ export default async function Board() {
             const niche = NICHES.find((n) => n.id === p.niche)!;
             const who = CHARACTERS.find((c) => c.id === p.character);
             return (
-              <li key={p.id} className="flex gap-4 rounded-xl border border-line bg-surface p-3">
+              <li key={p.id} className="flex gap-4 glass-card p-3">
                 <Thumb hue={p.hue} format={p.format} className="h-28 w-24 shrink-0 rounded-lg" />
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
@@ -116,7 +116,7 @@ export default async function Board() {
                     {p.channels.map((id) => {
                       const c = channel(id);
                       return (
-                        <span key={id} title={c.name} className="flex items-center gap-1 rounded-md bg-bg px-1.5 py-0.5 font-mono text-[10px]">
+                        <span key={id} title={c.name} className="flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 font-mono text-[10px]">
                           <Jack route={c.route} live={status[id].ready} size={8} />
                           {c.short}
                         </span>

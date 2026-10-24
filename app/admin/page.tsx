@@ -4,6 +4,8 @@ import { credentials } from "@/lib/store";
 import { hubStatus } from "@/lib/status";
 import { Jack } from "@/components/ui";
 import ServiceCard from "./service-card";
+import { Reveal } from "@/components/fx";
+import { PageHead } from "@/components/page-head";
 
 export const dynamic = "force-dynamic";
 
@@ -18,20 +20,17 @@ export default async function Admin() {
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Админка</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Подключайте площадки здесь. Ключи шифруются и хранятся на сервере; после сохранения видны только последние четыре символа.
-        </p>
-      </div>
+      <PageHead title="Админка" kicker="ключи · связи · маршруты">
+        Подключайте площадки здесь. Ключи шифруются и хранятся на сервере; после сохранения видны только последние четыре символа.
+      </PageHead>
       {status.storeError && (
-        <p className="rounded-lg border border-bad/40 bg-surface px-3 py-2 text-sm text-bad">Хранилище ключей недоступно: {status.storeError}</p>
+        <p className="rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">Хранилище ключей недоступно: {status.storeError}</p>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2">
-        {SERVICES.map((s) => (
+      <section className="grid items-start gap-4 md:grid-cols-2">
+        {SERVICES.map((s, i) => (
+          <Reveal key={s.id} i={i}>
           <ServiceCard
-            key={s.id}
             service={s}
             current={Object.fromEntries(
               s.fields.map((f) => {
@@ -42,12 +41,13 @@ export default async function Admin() {
               }),
             )}
           />
+          </Reveal>
         ))}
       </section>
 
       <section className="space-y-3">
         <h2 className="font-display text-lg font-semibold">Маршруты площадок</h2>
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+        <div className="glass-card overflow-x-auto">
           <table className="w-full min-w-[560px] text-sm">
             <thead className="text-left text-xs text-muted">
               <tr>

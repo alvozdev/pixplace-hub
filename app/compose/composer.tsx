@@ -74,13 +74,13 @@ export default function Composer({ status, generator }: Props) {
         </Field>
 
         <Field label="Формат">
-          <div className="inline-flex rounded-lg border border-line bg-surface p-1">
+          <div className="btn-glass inline-flex p-1">
             {FORMATS.filter((f) => niche.formats.includes(f)).map((f) => (
               <button
                 key={f}
                 onClick={() => setFormat(f)}
                 aria-pressed={format === f}
-                className={`rounded-md px-4 py-1.5 text-sm ${format === f ? "bg-ink text-surface" : "text-muted hover:text-ink"}`}
+                className={`rounded-full px-4 py-1.5 text-sm transition-all ${format === f ? "bg-gradient-to-b from-[#5b9bff] to-[#2563eb] text-white shadow-[0_6px_20px_-6px_rgb(59_130_246/0.9)]" : "text-muted hover:text-ink"}`}
               >
                 {FORMAT_LABEL[f]}
               </button>
@@ -97,7 +97,7 @@ export default function Composer({ status, generator }: Props) {
                 onClick={() => setCharacter(c.id)}
                 aria-pressed={character === c.id}
                 className={`flex items-center gap-3 rounded-lg border p-2 text-left ${
-                  character === c.id ? "border-ink bg-surface" : "border-line bg-surface/50 hover:border-muted"
+                  character === c.id ? "border-violet/60 bg-white/[0.08]" : "border-line bg-surface/50 hover:border-muted"
                 }`}
               >
                 <Thumb hue={[280, 152][i]} format="image" className="h-10 w-10 shrink-0 rounded-full" />
@@ -119,7 +119,7 @@ export default function Composer({ status, generator }: Props) {
             value={brief}
             onChange={(e) => setBrief(e.target.value)}
             rows={3}
-            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-ink"
+            className="field"
           />
         </Field>
 
@@ -150,7 +150,7 @@ export default function Composer({ status, generator }: Props) {
         <div className="flex flex-wrap items-center gap-3 border-t border-line pt-5">
           <button
             disabled
-            className="w-full sm:w-auto rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:cursor-not-allowed disabled:opacity-40"
+            className="btn-primary w-full px-5 py-2.5 text-sm sm:w-auto"
           >
             Сгенерировать
           </button>
@@ -170,7 +170,7 @@ export default function Composer({ status, generator }: Props) {
             Без ключей: {notReady.map((id) => CHANNELS.find((c) => c.id === id)!.name).join(", ")} — эти площадки вернут ошибку.
           </p>
         )}
-        {message && <pre className="whitespace-pre-wrap rounded-lg bg-surface p-3 font-mono text-xs">{message}</pre>}
+        {message && <pre className="whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/30 p-3 font-mono text-xs">{message}</pre>}
       </div>
 
       <aside className="space-y-3 lg:sticky lg:top-20 lg:self-start">
@@ -182,7 +182,7 @@ export default function Composer({ status, generator }: Props) {
                 key={id}
                 onClick={() => setPreviewOn(id)}
                 aria-pressed={previewOn === id}
-                className={`shrink-0 rounded-md px-2 py-1 font-mono text-[11px] ${previewOn === id ? "bg-ink text-surface" : "bg-surface text-muted"}`}
+                className={`shrink-0 rounded-md px-2 py-1 font-mono text-[11px] ${previewOn === id ? "bg-gradient-to-b from-[#5b9bff] to-[#2563eb] text-white shadow-[0_6px_20px_-6px_rgb(59_130_246/0.9)]" : "bg-surface text-muted"}`}
               >
                 {c.short}
               </button>
@@ -218,7 +218,7 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
     <button
       onClick={onClick}
       aria-pressed={on}
-      className={`rounded-full border px-3 py-1 text-sm ${on ? "border-ink bg-ink text-surface" : "border-line bg-surface hover:border-muted"}`}
+      className={`rounded-full border px-3 py-1 text-sm ${on ? "border-transparent bg-gradient-to-b from-[#5b9bff] to-[#2563eb] text-white" : "border-line bg-surface hover:border-muted"}`}
     >
       {children}
     </button>

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { GlowAvatar, Reveal, TiltCard } from "@/components/fx";
+import { PageHead } from "@/components/page-head";
 import { niches } from "@/lib/niches";
 import { credential } from "@/lib/store";
 
@@ -10,21 +12,22 @@ export default async function Niches() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Ниши</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Один воркфлоу в n8n на все ниши. Здесь задаётся, что он делает для каждой: пул референсов, промпты, стили, модель и куда публиковать.
-        </p>
-      </div>
-      <ul className="grid gap-3 md:grid-cols-2">
+      <PageHead title="Ниши" kicker="один воркфлоу · много направлений">
+        Один воркфлоу в n8n на все ниши. Здесь задаётся, что он делает для каждой: пул референсов, промпты, стили, модель и куда публиковать.
+      </PageHead>
+      <div className="grid gap-4 md:grid-cols-2">
         {list.map((n, i) => (
-          <li key={n.id} className="space-y-3 rounded-xl border border-line bg-surface p-4">
-            <div className="flex items-center gap-2">
-              <span className={`h-2.5 w-2.5 rounded-full ${n.enabled ? "bg-ok" : "bg-line"}`} />
-              <h2 className="font-medium">{n.name}</h2>
-              <span className="ml-auto font-mono text-[11px] text-muted">{n.updatedAt ? "изменено" : "исходные настройки"}</span>
+          <Reveal key={n.id} i={i}>
+          <TiltCard className="space-y-4 p-5">
+            <div className="flex items-center gap-3">
+              <GlowAvatar label={n.name.split(/[\s&]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase()} size={48} live={n.enabled} />
+              <div className="min-w-0">
+                <h2 className="truncate font-display text-base font-semibold">{n.name}</h2>
+                <span className={`text-xs ${n.enabled ? "text-ok" : "text-muted"}`}>{n.enabled ? "● включена" : "○ выключена"}</span>
+              </div>
+              <span className="ml-auto rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] text-muted">{n.updatedAt ? "изменено" : "исходные"}</span>
             </div>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
               <dt className="text-muted">{n.format === "rotate" ? "Рубрики" : "Стили"}</dt>
               <dd>
                 {n.styles.map((s) => `${s.key} · ${s.label}`).join(", ")}
@@ -39,12 +42,13 @@ export default async function Niches() {
               <dt className="text-muted">Лимит</dt>
               <dd>{n.dailyLimit} в день{n.dailyBudgetUsd > 0 ? ` · до $${n.dailyBudgetUsd}` : ""}</dd>
             </dl>
-            <Link href={`/niches/${n.id}`} className="inline-block rounded-lg border border-line px-3 py-1.5 text-sm hover:border-ink">
-              Настроить
+            <Link href={`/niches/${n.id}`} className="btn-glass inline-flex items-center gap-2 px-4 py-2 text-sm">
+              Настроить <span aria-hidden>→</span>
             </Link>
-          </li>
+          </TiltCard>
+          </Reveal>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

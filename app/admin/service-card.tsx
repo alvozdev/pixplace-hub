@@ -1,6 +1,7 @@
 "use client";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import type { Service } from "@/lib/credentials";
+import { Notice } from "@/components/fx";
 import { removeField, saveService, testService, type ActionResult } from "./actions";
 
 function randomToken() {
@@ -25,12 +26,15 @@ export default function ServiceCard({ service, current }: { service: Service; cu
   }, [saved]);
 
   return (
-    <form action={save} onSubmit={() => setTest(null)} className="min-w-0 space-y-4 rounded-xl border border-line bg-surface p-4">
+    <form action={save} onSubmit={() => setTest(null)} className="glass-card min-w-0 space-y-4 p-5">
       <div className="flex items-center gap-2">
-        <span className={`h-3 w-3 rounded-full ${ready ? "bg-ok" : "ring-2 ring-inset ring-muted"}`} />
-        <h2 className="font-medium">{service.title}</h2>
-        <span className={`ml-auto text-xs ${ready ? "text-ok" : "text-warn"}`}>
-          {ready && done === counted.length ? "подключено" : `заполнено ${done} из ${counted.length}`}
+        <span className="relative flex h-3 w-3">
+          {ready && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ok opacity-50" />}
+          <span className={`relative inline-flex h-3 w-3 rounded-full ${ready ? "bg-ok shadow-[0_0_12px_#34d399]" : "ring-2 ring-inset ring-muted"}`} />
+        </span>
+        <h2 className="font-display text-sm font-semibold">{service.title}</h2>
+        <span className={`ml-auto text-xs ${ready ? "text-ok" : required.length ? "text-warn" : "text-muted"}`}>
+          {!required.length && !done ? "по желанию" : ready && done === counted.length ? "подключено" : `заполнено ${done} из ${counted.length}`}
         </span>
       </div>
       <p className="text-xs text-muted">{service.how}</p>
@@ -63,13 +67,13 @@ export default function ServiceCard({ service, current }: { service: Service; cu
                   value={shown[f.key] ?? ""}
                   onChange={(e) => setShown({ ...shown, [f.key]: e.target.value })}
                   placeholder={cur ? "оставьте пустым, чтобы не менять" : f.placeholder ?? ""}
-                  className="min-w-0 flex-1 rounded-lg border border-line bg-bg/40 px-3 py-2 font-mono text-xs outline-none focus:border-ink"
+                  className="field min-w-0 flex-1 font-mono text-xs"
                 />
                 {f.generate && (
                   <button
                     type="button"
                     onClick={() => setShown({ ...shown, [f.key]: randomToken() })}
-                    className="shrink-0 rounded-lg border border-line px-3 text-xs hover:border-ink"
+                    className="btn-glass shrink-0 px-3.5 text-xs"
                   >
                     Сгенерировать
                   </button>
@@ -80,8 +84,8 @@ export default function ServiceCard({ service, current }: { service: Service; cu
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
-        <button disabled={saving} className="rounded-lg bg-ink px-3 py-1.5 text-sm font-medium text-surface disabled:opacity-50">
+      <div className="flex flex-wrap items-center gap-2 border-t border-white/[0.08] pt-4">
+        <button disabled={saving} className="btn-primary px-5 py-2 text-sm">
           {saving ? "Сохраняем…" : "Сохранить"}
         </button>
         {service.testable && (
@@ -89,15 +93,13 @@ export default function ServiceCard({ service, current }: { service: Service; cu
             type="button"
             disabled={testing}
             onClick={() => startTest(async () => setTest(await testService(service.id)))}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm hover:border-ink disabled:opacity-50"
+            className="btn-glass px-5 py-2 text-sm"
           >
             {testing ? "Проверяем…" : "Проверить"}
           </button>
         )}
-        {(test ?? saved) && (
-          <span className={`text-xs ${(test ?? saved)!.ok ? "text-ok" : "text-bad"}`}>{(test ?? saved)!.message}</span>
-        )}
       </div>
+      <Notice result={test ?? saved ?? null} />
     </form>
   );
 }

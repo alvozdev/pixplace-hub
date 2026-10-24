@@ -1,6 +1,8 @@
 import { jobs, startedToday, type Job } from "@/lib/jobs";
 import { niches } from "@/lib/niches";
 import { hubStatus } from "@/lib/status";
+import { GlowAvatar, Reveal } from "@/components/fx";
+import { PageHead } from "@/components/page-head";
 import GenerateBar from "./generate-bar";
 import JobCard from "./job-card";
 import AutoRefresh from "./auto-refresh";
@@ -14,34 +16,41 @@ export default async function Drafts() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Черновики</h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Сгенерируйте пост для ниши, проверьте 4 варианта и опубликуйте: карусель уйдёт на портал pixPLace с аккаунта направления, альбом — в тред группы, коллаж и промпты — в Make для Pinterest.
-        </p>
-      </div>
+      <PageHead title="Черновики" kicker="генерация → проверка → публикация">
+        Сгенерируйте пост для ниши, проверьте варианты и опубликуйте: карусель уйдёт на портал pixPLace с аккаунта направления, альбом — в тред группы, коллаж и промпты — в Make для Pinterest.
+      </PageHead>
 
       {!status.generator.ready && (
-        <p className="rounded-lg border border-warn/40 bg-surface px-3 py-2 text-sm text-warn">
+        <Reveal className="rounded-2xl border border-warn/30 bg-warn/10 px-4 py-3 text-sm text-warn backdrop-blur">
           Сначала заполните в админке «Связь панели с n8n»: без неё кнопки не запустят воркфлоу.
-        </p>
+        </Reveal>
       )}
-      {status.storeError && <p className="rounded-lg border border-bad/40 bg-surface px-3 py-2 text-sm text-bad">{status.storeError}</p>}
+      {status.storeError && <p className="rounded-2xl border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">{status.storeError}</p>}
 
       <GenerateBar
-        niches={list.map((n) => ({ id: n.id, name: n.name, enabled: n.enabled, used: startedToday(all, n.id), limit: n.dailyLimit }))}
+        niches={list.map((n) => ({
+          id: n.id,
+          name: n.name,
+          enabled: n.enabled,
+          used: startedToday(all, n.id),
+          limit: n.dailyLimit,
+          styles: n.format === "rotate" ? 1 : n.styles.length,
+        }))}
       />
 
       {visible.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
-          Черновиков пока нет. Нажмите «Сгенерировать» у нужной ниши.
-        </p>
+        <Reveal i={3} className="glass-card flex flex-col items-center gap-4 px-4 py-14 text-center">
+          <GlowAvatar label="✦" size={64} />
+          <p className="max-w-sm text-sm text-muted">Черновиков пока нет. Нажмите «Сгенерировать» у нужной ниши — через пару минут здесь появятся варианты.</p>
+        </Reveal>
       ) : (
-        <ul className="space-y-4">
-          {visible.map((j) => (
-            <JobCard key={j.id} job={j} nicheName={list.find((n) => n.id === j.nicheId)?.name ?? j.nicheId} />
+        <div className="space-y-4">
+          {visible.map((j, i) => (
+            <Reveal key={j.id} i={i + 3}>
+              <JobCard job={j} nicheName={list.find((n) => n.id === j.nicheId)?.name ?? j.nicheId} />
+            </Reveal>
           ))}
-        </ul>
+        </div>
       )}
       <AutoRefresh active={active} />
     </div>

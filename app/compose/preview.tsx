@@ -41,7 +41,7 @@ export default function Preview({ channel, format, text, nicheName }: Props) {
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-white">
       <div className="flex items-center gap-2 border-b border-line px-3 py-2 text-xs">
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-ink font-display text-[9px] text-surface">px</span>
+        <span className="grid h-6 w-6 place-items-center rounded-full bg-white/10 font-display text-[9px] text-ink ring-1 ring-white/20">px</span>
         <span className="font-medium">pixplace</span>
         <span className="ml-auto text-muted">{c.name}</span>
       </div>

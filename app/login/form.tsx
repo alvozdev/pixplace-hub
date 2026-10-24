@@ -7,11 +7,11 @@ export default function LoginForm({ next }: { next: string }) {
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="next" value={next} />
-      <label htmlFor="password" className="block text-sm font-medium">Пароль</label>
+      <label htmlFor="password" className="block text-xs text-muted">Пароль</label>
       <input id="password" name="password" type="password" required autoFocus autoComplete="current-password"
-        className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-ink" />
-      {error && <p className="text-sm text-bad">{error}</p>}
-      <button disabled={pending} className="w-full rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-50">
+        className="field" />
+      {error && <p className="rounded-2xl border border-bad/30 bg-bad/10 px-3 py-2 text-sm text-bad">{error}</p>}
+      <button disabled={pending} className="btn-primary w-full px-4 py-2.5 text-sm">
         {pending ? "Входим…" : "Войти"}
       </button>
     </form>

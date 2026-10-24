@@ -78,7 +78,7 @@ export function Thumb({ hue, format, className = "rounded-lg" }: { hue: number; 
         }}
       />
       {format === "video" && (
-        <span className="absolute inset-0 m-auto grid h-9 w-9 place-items-center rounded-full bg-ink/70 text-surface text-xs">▶</span>
+        <span className="absolute inset-0 m-auto grid h-9 w-9 place-items-center rounded-full bg-black/60 text-ink text-xs backdrop-blur">▶</span>
       )}
       {format === "text" && (
         <span className="absolute inset-0 grid place-items-center font-display text-2xl text-ink/50">Aa</span>
@@ -89,7 +89,7 @@ export function Thumb({ hue, format, className = "rounded-lg" }: { hue: number; 
 
 export function SampleNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-lg border border-dashed border-line bg-surface px-3 py-2 text-xs text-muted">
+    <p className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-3 py-2 text-xs text-muted">
       <span className="font-mono uppercase tracking-wide text-ink">пример данных</span> · {children}
     </p>
   );

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { NicheConfig } from "@/lib/niches";
 import { PORTAL_ACCOUNTS } from "@/lib/portal-accounts";
+import { Notice, Reveal } from "@/components/fx";
 import { resetNicheAction, saveNicheAction, type SaveResult } from "../actions";
 
-const input = "w-full rounded-lg border border-line bg-bg/40 px-3 py-2 text-sm outline-none focus:border-ink";
+const input = "field";
 const mono = `${input} font-mono text-xs`;
 
 export default function NicheEditor({ initial }: { initial: NicheConfig }) {
@@ -30,8 +31,8 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <Link href="/niches" className="text-xs text-muted hover:text-ink">← Ниши</Link>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">{n.name}</h1>
+          <Link href="/niches" className="btn-glass inline-flex px-3 py-1 text-xs text-muted">← Ниши</Link>
+          <h1 className="text-gradient mt-3 font-display text-3xl font-semibold tracking-tight">{n.name}</h1>
           <p className="mt-1 text-sm text-muted">Колонка учёта в n8n: <span className="font-mono">{n.dedupColumn}</span> · ключ Make в админке: <span className="font-mono">{n.makeWebhookKey}</span></p>
         </div>
       </div>
@@ -50,7 +51,7 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         </Grid>
         <Field label="Пул референсов (JSON из интерфейса сортировки)"><input id="datasetUrl" className={mono} value={n.datasetUrl} onChange={(e) => set("datasetUrl", e.target.value)} /></Field>
         <label className="flex items-center gap-2 text-sm">
-          <input id="enabled" type="checkbox" checked={n.enabled} onChange={(e) => set("enabled", e.target.checked)} className="accent-ink" />
+          <input id="enabled" type="checkbox" checked={n.enabled} onChange={(e) => set("enabled", e.target.checked)} className="h-4 w-4 accent-violet" />
           Ниша включена
         </label>
       </Section>
@@ -79,7 +80,7 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         <Field label="Задание"><textarea id="variantsUser" rows={7} className={input} value={n.variants.user} onChange={(e) => setPart("variants", { user: e.target.value })} /></Field>
         <div className="space-y-3">
           {n.styles.map((s, i) => (
-            <div key={i} className="grid gap-2 rounded-lg border border-line p-3 sm:grid-cols-[3rem_1fr_6rem]">
+            <div key={i} className="grid gap-2 rounded-2xl border border-white/[0.08] bg-black/15 p-3 sm:grid-cols-[3.5rem_1fr_6rem]">
               <Field label="Буква"><input id={`style${i}Key`} className={mono} value={s.key} onChange={(e) => setStyle(i, { key: e.target.value })} /></Field>
               <Field label="Название в посте"><input id={`style${i}Label`} className={input} value={s.label} onChange={(e) => setStyle(i, { label: e.target.value })} /></Field>
               <Field label="Шаги"><input id={`style${i}Steps`} type="number" className={input} value={s.steps} onChange={(e) => setStyle(i, { steps: Number(e.target.value) })} /></Field>
@@ -95,7 +96,7 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
             </div>
           ))}
           {n.styles.length < 7 && (
-            <button type="button" onClick={addStyle} className="w-full rounded-lg border border-dashed border-line px-3 py-2 text-sm text-muted hover:border-ink hover:text-ink">
+            <button type="button" onClick={addStyle} className="w-full rounded-2xl border border-dashed border-white/15 px-3 py-2.5 text-sm text-muted transition-colors hover:border-violet/60 hover:text-ink">
               + Добавить стиль
             </button>
           )}
@@ -138,7 +139,7 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
 
       <Section title="5. Портал pixPLace" hint="Одна карусель из 4 картинок с аккаунта направления, кнопки «Run in app» ведут в приложение с промптом">
         <label className="flex items-center gap-2 text-sm">
-          <input id="portalEnabled" type="checkbox" checked={n.portal.enabled} onChange={(e) => setPart("portal", { enabled: e.target.checked })} className="accent-ink" />
+          <input id="portalEnabled" type="checkbox" checked={n.portal.enabled} onChange={(e) => setPart("portal", { enabled: e.target.checked })} className="h-4 w-4 accent-violet" />
           Публиковать на портал
         </label>
         <Grid>
@@ -157,18 +158,18 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
         <Field label="SEO-ключи через запятую (до 20)"><input id="portalSeo" className={input} defaultValue={n.portal.seoKeywords.join(", ")} onBlur={(e) => setPart("portal", { seoKeywords: list(e.target.value) })} /></Field>
       </Section>
 
-      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center gap-2 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur">
-        <button disabled={pending} onClick={() => start(async () => setResult(await saveNicheAction(n)))} className="w-full rounded-lg bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-40 sm:w-auto">
+      <div className="sticky bottom-3 z-20 flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-[#0d0d14]/70 p-2 shadow-[0_20px_60px_-20px_rgb(0_0_0/0.9)] backdrop-blur-2xl">
+        <button disabled={pending} onClick={() => start(async () => setResult(await saveNicheAction(n)))} className="btn-primary w-full px-6 py-2.5 text-sm sm:w-auto">
           {pending ? "Сохраняем…" : "Сохранить"}
         </button>
         <button
           disabled={pending}
           onClick={() => start(async () => { setResult(await resetNicheAction(n.id)); window.location.reload(); })}
-          className="w-full rounded-lg border border-line px-4 py-2 text-sm hover:border-ink disabled:opacity-40 sm:w-auto"
+          className="btn-glass w-full px-5 py-2.5 text-sm sm:w-auto"
         >
           Сбросить к исходным
         </button>
-        {result && <span className={`text-sm ${result.ok ? "text-ok" : "text-bad"}`}>{result.message}</span>}
+        <div className="min-w-0 flex-1"><Notice result={result} /></div>
       </div>
     </div>
   );
@@ -176,13 +177,15 @@ export default function NicheEditor({ initial }: { initial: NicheConfig }) {
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-3 rounded-xl border border-line bg-surface p-4">
-      <div>
-        <h2 className="font-medium">{title}</h2>
-        {hint && <p className="text-xs text-muted">{hint}</p>}
-      </div>
-      {children}
-    </section>
+    <Reveal>
+      <section className="glass-card space-y-4 p-5">
+        <div>
+          <h2 className="font-display text-sm font-semibold">{title}</h2>
+          {hint && <p className="mt-0.5 text-xs text-muted">{hint}</p>}
+        </div>
+        {children}
+      </section>
+    </Reveal>
   );
 }
 
